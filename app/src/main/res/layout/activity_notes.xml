@@ -1,24 +1,54 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
+<RelativeLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context=".NotesActivity"
-    tools:menu="@menu/menu_main">
+    android:layout_marginTop="10dp"
+    android:layout_marginBottom="10dp"
+    android:layout_marginRight="20dp"
+    android:layout_marginLeft="20dp"
+    android:theme="@style/Theme.AppCompat.DayNight.NoActionBar">
 
+    <ImageButton
+        android:id="@+id/settings"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:src="@drawable/ic_baseline_settings_24"
+        android:layout_alignParentRight="true"/>
+    <com.google.android.material.textview.MaterialTextView
+        android:id="@+id/your_notes"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/settings"
+        android:text="Your Notes"
+        android:textSize="30dp"
+        android:fontFamily="sans-serif-black" />
+    <com.google.android.material.textfield.TextInputEditText
+        android:id="@+id/search"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="30dp"
+        android:layout_marginBottom="30dp"
+        android:layout_below="@+id/your_notes"
+        android:hint="Search here"
+        android:background="@drawable/edittext"
+        android:drawableStart="@drawable/ic_baseline_search_24"
+        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox" />
     <ViewStub
         android:id="@+id/stub_grid"
         android:layout="@layout/items_gridview"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
+        android:layout_below="@+id/search"
         android:inflatedId="@+id/showLayout" />
+
     <com.google.android.material.floatingactionbutton.FloatingActionButton
         android:id="@+id/fab"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:src="@drawable/ic_baseline_add_24"
         android:layout_alignParentRight="true"
-        android:layout_alignParentBottom="true"
-        android:layout_margin="40dp"/>
+        android:layout_alignParentBottom="true"/>
 </RelativeLayout>

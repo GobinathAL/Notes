@@ -3,10 +3,9 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:orientation="vertical"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:minHeight="200dp"
-    android:background="#eeeeee"
-    android:padding="30dp">
+    android:layout_height="wrap_content"
+    android:background="@drawable/grid_background"
+    android:padding="10dp">
 
     <com.google.android.material.textview.MaterialTextView
         android:id="@+id/item_title"

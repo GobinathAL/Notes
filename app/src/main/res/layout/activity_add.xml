@@ -4,20 +4,23 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".AddActivity">
+    tools:context=".AddActivity"
+    android:layout_marginTop="10dp"
+    android:layout_marginBottom="10dp"
+    android:layout_marginRight="20dp"
+    android:layout_marginLeft="20dp">
 
     <RelativeLayout
         android:id="@+id/rel_layout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_margin="20dp"
         android:orientation="horizontal">
 
-        <com.google.android.material.button.MaterialButton
+        <ImageButton
             android:id="@+id/discard"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="cancel"
+            android:src="@drawable/ic_baseline_arrow_back_24"
             android:layout_alignParentLeft="true"
             app:cornerRadius="50dp" />
         <com.google.android.material.button.MaterialButton
@@ -26,6 +29,7 @@
             android:layout_height="wrap_content"
             android:text="save"
             android:layout_alignParentRight="true"
+            android:visibility="gone"
             app:cornerRadius="50dp"/>
     </RelativeLayout>
     <com.google.android.material.textfield.TextInputEditText
@@ -33,23 +37,23 @@
         android:layout_below="@+id/rel_layout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_margin="20dp"
-        android:hint="Title"
-        android:textSize="50dp"
+        android:layout_marginTop="10dp"
+        android:hint="Enter title here"
+        android:textSize="30dp"
+        android:inputType="textCapWords"
+        android:background="#ffffffff"
         android:textStyle="bold" />
-    <com.google.android.material.textfield.TextInputLayout
-        android:layout_below="@+id/input_title"
+    <com.google.android.material.textfield.TextInputEditText
+        android:id="@+id/input_description"
         android:layout_width="match_parent"
-        android:layout_margin="20dp"
-        android:hint="Enter the description here"
-        android:background="@drawable/grid_background"
-        android:layout_height="fill_parent"
-        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox">
-        <com.google.android.material.textfield.TextInputEditText
-            android:id="@+id/input_description"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:gravity="top"
-            android:cursorVisible="true"/>
-    </com.google.android.material.textfield.TextInputLayout>
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/input_title"
+        android:layout_marginTop="10dp"
+        android:gravity="top"
+        android:background="#ffffffff"
+        android:hint="Enter description here"
+        android:cursorVisible="true">
+        <requestFocus/>
+    </com.google.android.material.textfield.TextInputEditText>
+
 </RelativeLayout>
