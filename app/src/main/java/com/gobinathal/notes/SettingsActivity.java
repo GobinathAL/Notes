@@ -10,13 +10,17 @@ import android.os.Bundle;
 import android.view.View;
 import android.widget.ImageButton;
 import android.widget.RadioGroup;
+import android.widget.Toast;
 
+import com.google.android.material.button.MaterialButton;
 import com.google.android.material.radiobutton.MaterialRadioButton;
+import com.google.firebase.auth.FirebaseAuth;
 
 public class SettingsActivity extends AppCompatActivity {
 
     private ImageButton goBack, twitter;
     private RadioGroup radioGroup;
+    private MaterialButton logout;
     private SharedPreferences sharedPreferences;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -74,6 +78,18 @@ public class SettingsActivity extends AppCompatActivity {
             public void onClick(View v) {
                 Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse("https://www.twitter.com/gobinathal"));
                 startActivity(intent);
+            }
+        });
+        logout = findViewById(R.id.logout);
+        logout.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                FirebaseAuth.getInstance().signOut();
+                getApplicationContext().getSharedPreferences("ThemePref", 0).edit().clear().commit();
+                Toast.makeText(SettingsActivity.this, "Logged out", Toast.LENGTH_SHORT).show();
+                startActivity(new Intent(SettingsActivity.this, LoginActivity.class));
+                setResult(RESULT_OK);
+                finish();
             }
         });
     }

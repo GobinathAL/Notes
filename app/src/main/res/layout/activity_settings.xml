@@ -112,4 +112,12 @@
             </LinearLayout>
         </LinearLayout>
     </com.google.android.material.card.MaterialCardView>
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/logout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/app_developer"
+        app:cornerRadius="10dp"
+        android:layout_marginTop="10dp"
+        android:text="Log out" />
 </RelativeLayout>

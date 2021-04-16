@@ -21,6 +21,7 @@ import com.google.firebase.auth.FirebaseAuth;
 public class RegisterActivity extends AppCompatActivity {
 
     private TextInputEditText email, password;
+    private MaterialTextView registerHeader;
     private MaterialButton registerButton;
     private FirebaseAuth auth;
     @Override
@@ -29,6 +30,9 @@ public class RegisterActivity extends AppCompatActivity {
         setContentView(R.layout.activity_login);
         findViewById(R.id.register_prompt).setVisibility(View.GONE);
         auth = FirebaseAuth.getInstance();
+        registerHeader = findViewById(R.id.login_register_header);
+        registerHeader.setText("Register");
+        findViewById(R.id.login_helper_text).setVisibility(View.GONE);
         email = findViewById(R.id.email);
         password = findViewById(R.id.password);
         registerButton = findViewById(R.id.button);

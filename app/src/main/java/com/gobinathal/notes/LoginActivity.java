@@ -1,5 +1,6 @@
 package com.gobinathal.notes;
 
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.app.AppCompatDelegate;
 
@@ -32,7 +33,6 @@ public class LoginActivity extends AppCompatActivity {
         email = findViewById(R.id.email);
         password = findViewById(R.id.password);
         loginButton = findViewById(R.id.button);
-        loginButton.setText("Login");
         goToRegsitration = findViewById(R.id.register_prompt);
         goToRegsitration.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -61,10 +61,14 @@ public class LoginActivity extends AppCompatActivity {
                     @Override
                     public void onSuccess(AuthResult authResult) {
                         Toast.makeText(LoginActivity.this, "Login success", Toast.LENGTH_SHORT).show();
-                        startActivity(new Intent(LoginActivity.this, NotesActivity.class));
+                        startActivityForResult(new Intent(LoginActivity.this, NotesActivity.class), 1);
                         finish();
                     }
                 });
+    }
 
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
     }
 }

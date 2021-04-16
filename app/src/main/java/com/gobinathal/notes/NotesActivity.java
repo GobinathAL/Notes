@@ -149,6 +149,9 @@ public class NotesActivity extends AppCompatActivity {
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        if(requestCode == 3 && resultCode == RESULT_OK) {
+            finish();
+        }
         super.onActivityResult(requestCode, resultCode, data);
     }
     private TodoItem constructTodoItem(String s) {
@@ -158,11 +161,5 @@ public class NotesActivity extends AppCompatActivity {
         String description = s.substring(s.indexOf(", description=") + 14, s.indexOf("}"));
         todoItem.setDescription(description);
         return todoItem;
-    }
-    private void logout() {
-        FirebaseAuth.getInstance().signOut();
-        Toast.makeText(NotesActivity.this, "Logged out", Toast.LENGTH_SHORT).show();
-        startActivity(new Intent(NotesActivity.this, LoginActivity.class));
-        finish();
     }
 }
