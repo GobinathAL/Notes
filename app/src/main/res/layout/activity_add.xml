@@ -41,7 +41,7 @@
         android:hint="Enter title here"
         android:textSize="30dp"
         android:inputType="textCapWords"
-        android:background="#ffffffff"
+        android:background="@color/material_on_primary_disabled"
         android:textStyle="bold" />
     <com.google.android.material.textfield.TextInputEditText
         android:id="@+id/input_description"
@@ -50,7 +50,7 @@
         android:layout_below="@+id/input_title"
         android:layout_marginTop="10dp"
         android:gravity="top"
-        android:background="#ffffffff"
+        android:background="@color/material_on_primary_disabled"
         android:hint="Enter description here"
         android:cursorVisible="true">
         <requestFocus/>

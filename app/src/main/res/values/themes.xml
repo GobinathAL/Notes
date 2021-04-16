@@ -19,7 +19,12 @@
         <item name="windowNoTitle">true</item>
     </style>
 
-    <style name="Theme.Notes.AppBarOverlay" parent="ThemeOverlay.AppCompat.Dark.ActionBar" />
+    <style name="Theme.Notes.AppBarOverlay" parent="ThemeOverlay.MaterialComponents.Dark.ActionBar" />
 
-    <style name="Theme.Notes.PopupOverlay" parent="ThemeOverlay.AppCompat.Light" />
+    <style name="Theme.Notes.PopupOverlay" parent="ThemeOverlay.MaterialComponents.Light" />
+
+    <style name="Widget.Notes.Edittext" parent="TextAppearance.MaterialComponents.Button">
+        <item name="backgroundColor">@color/white</item>
+        <item name="android:textColor">@color/black</item>
+    </style>
 </resources>

@@ -1,6 +1,7 @@
 package com.gobinathal.notes;
 
 import android.content.Context;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -29,8 +30,10 @@ public class CustomGridAdapter extends ArrayAdapter<TodoItem> {
         TodoItem todoItem = getItem(position);
         MaterialTextView title = v.findViewById(R.id.item_title);
         MaterialTextView description = v.findViewById(R.id.item_description);
+        MaterialTextView docid = v.findViewById(R.id.item_docid);
         title.setText(todoItem.getTitle());
         description.setText(todoItem.getDescription());
+        docid.setText(todoItem.getDocid());
         return v;
     }
 }

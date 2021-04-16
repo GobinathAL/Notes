@@ -9,7 +9,7 @@
     <color name="white">#FFFFFFFF</color>
     <color name="grey">#A1A1A1</color>
     <color name="dark_grey">#3A3A3A</color>
-    <color name="rectangle_background">#ffffff</color>
-    <color name="rectangle_stroke">#121212</color>
-    <color name="cardview_background">#eeeeee</color>
+    <color name="rectangle_background">#303030</color>
+    <color name="rectangle_stroke">#dfdfdf</color>
+    <color name="cardview_background">@color/cardview_dark_background</color>
 </resources>

@@ -3,11 +3,15 @@ package com.gobinathal.notes;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.app.AppCompatDelegate;
 import androidx.core.widget.NestedScrollView;
 
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.provider.ContactsContract;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -17,9 +21,13 @@ import android.view.ViewStub;
 import android.widget.AdapterView;
 import android.widget.GridView;
 import android.widget.ImageButton;
+import android.widget.LinearLayout;
 import android.widget.Toast;
 
+import com.google.android.material.card.MaterialCardView;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
+import com.google.android.material.textfield.TextInputEditText;
+import com.google.android.material.textview.MaterialTextView;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentReference;
@@ -40,25 +48,36 @@ public class NotesActivity extends AppCompatActivity {
     private ViewStub stubGrid;
     private GridView gvItems;
     private ImageButton settings;
-    ArrayList<TodoItem> tasksArr = new ArrayList<TodoItem>();
-    ArrayList<String> documentId = new ArrayList<String>();
-    FirebaseFirestore db;
-    DocumentReference dRef;
-    CollectionReference cRef;
-    CustomGridAdapter gridAdapter;
-    FloatingActionButton fab;
+    private MaterialCardView cardView;
+    private TextInputEditText searchField;
+    private  ArrayList<TodoItem> tasksArr = new ArrayList<TodoItem>();
+    private FirebaseFirestore db;
+    private DocumentReference dRef;
+    private CollectionReference cRef;
+    private CustomGridAdapter gridAdapter;
+    private FloatingActionButton fab;
     private ListenerRegistration listener;
     private final int ADD_OR_DISCARD = 1;
     private final int EDIT_OR_DISCARD = 2;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        SharedPreferences sharedPreferences = getSharedPreferences("ThemePref", MODE_PRIVATE);
+        int theme = sharedPreferences.getInt("Theme", 0);
+        if(theme == 0)
+            AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM);
+        else if(theme == 1)
+            AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO);
+        else if(theme == 2)
+            AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES);
         setContentView(R.layout.activity_notes);
 
         stubGrid = findViewById(R.id.stub_grid);
         stubGrid.inflate();
+        Log.i("NotesActivity", "inflated stub");
         gvItems = findViewById(R.id.items_gridview);
         db = FirebaseFirestore.getInstance();
+        cardView = findViewById(R.id.item_card_view);
         cRef = db.collection(FirebaseAuth.getInstance().getUid());
         listener = cRef.addSnapshotListener(new EventListener<QuerySnapshot>() {
             @Override
@@ -71,18 +90,35 @@ public class NotesActivity extends AppCompatActivity {
                     ArrayList<DocumentSnapshot> todoList= (ArrayList<DocumentSnapshot>) value.getDocuments();
                     Log.i("fetch", "fetched " + todoList.size());
                     tasksArr.clear();
-                    documentId.clear();
                     for(DocumentSnapshot d : todoList) {
-                        TodoItem todoItem = new TodoItem(d.getString("title"), d.getString("description"));
+                        TodoItem todoItem = new TodoItem(d.getString("title"), d.getString("description"), d.getId());
                         tasksArr.add(todoItem);
-                        documentId.add(d.getId());
                         Log.i("fetch", todoItem.toString());
                     }
                     if(tasksArr != null && tasksArr.size() > 0) {
-                        gridAdapter = new CustomGridAdapter(getApplicationContext(), R.layout.grid_item, tasksArr);
+                        Log.i("NotesActivity", "before setadapter");
+                        gridAdapter = new CustomGridAdapter(NotesActivity.this, R.layout.grid_item, tasksArr);
                         gvItems.setAdapter(gridAdapter);
+                        Log.i("NotesActivity", "after setadapter");
                     }
                 }
+            }
+        });
+        searchField = findViewById(R.id.search);
+        searchField.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+
+            }
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+                String searchText = s.toString();
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {
+
             }
         });
         fab = findViewById(R.id.fab);
@@ -98,7 +134,7 @@ public class NotesActivity extends AppCompatActivity {
                 Intent intent = new Intent(NotesActivity.this, AddActivity.class);
                 intent.putExtra("title", tasksArr.get(position).getTitle());
                 intent.putExtra("description", tasksArr.get(position).getDescription());
-                intent.putExtra("docid", documentId.get(position));
+                intent.putExtra("docid", tasksArr.get(position).getDocid());
                 startActivityForResult(intent, EDIT_OR_DISCARD);
             }
         });
