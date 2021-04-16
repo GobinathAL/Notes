@@ -3,6 +3,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     tools:context=".NotesActivity">
 
     <ImageButton
@@ -44,13 +45,15 @@
         android:layout_margin="10dp"
         android:inflatedId="@+id/showLayout" />
 
-    <com.google.android.material.floatingactionbutton.FloatingActionButton
+    <com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton
         android:id="@+id/fab"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginBottom="10dp"
         android:layout_marginRight="10dp"
-        android:src="@drawable/ic_baseline_add_24"
+        android:text="Add a note"
+        app:icon="@drawable/ic_baseline_add_24"
+        app:rippleColor="@color/design_default_color_secondary_variant"
         android:layout_alignParentRight="true"
-        android:layout_alignParentBottom="true"/>
+        android:layout_alignParentBottom="true" />
 </RelativeLayout>

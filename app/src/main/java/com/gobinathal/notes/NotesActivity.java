@@ -25,6 +25,7 @@ import android.widget.LinearLayout;
 import android.widget.Toast;
 
 import com.google.android.material.card.MaterialCardView;
+import com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.android.material.textview.MaterialTextView;
@@ -50,12 +51,12 @@ public class NotesActivity extends AppCompatActivity {
     private ImageButton settings;
     private MaterialCardView cardView;
     private TextInputEditText searchField;
-    private  ArrayList<TodoItem> tasksArr = new ArrayList<TodoItem>();
+    private ArrayList<TodoItem> tasksArr = new ArrayList<TodoItem>();
     private FirebaseFirestore db;
     private DocumentReference dRef;
     private CollectionReference cRef;
     private CustomGridAdapter gridAdapter;
-    private FloatingActionButton fab;
+    private ExtendedFloatingActionButton fab;
     private ListenerRegistration listener;
     private final int ADD_OR_DISCARD = 1;
     private final int EDIT_OR_DISCARD = 2;
@@ -138,6 +139,7 @@ public class NotesActivity extends AppCompatActivity {
                 startActivityForResult(intent, EDIT_OR_DISCARD);
             }
         });
+
         settings = findViewById(R.id.settings);
         settings.setOnClickListener(new View.OnClickListener() {
             @Override
