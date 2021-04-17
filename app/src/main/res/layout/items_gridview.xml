@@ -7,7 +7,7 @@
         android:id="@+id/items_gridview"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:numColumns="2"
+        android:numColumns="1"
         android:minWidth="30dp"
         android:clickable="false"
         android:horizontalSpacing="10dp"

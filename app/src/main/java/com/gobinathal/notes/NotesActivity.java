@@ -139,7 +139,14 @@ public class NotesActivity extends AppCompatActivity {
                 startActivityForResult(intent, EDIT_OR_DISCARD);
             }
         });
-
+        gvItems.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
+            @Override
+            public boolean onItemLongClick(AdapterView<?> adapterView, View view, int i, long l) {
+                Log.i("NotesActivity", "" + i);
+                gvItems.setItemChecked(i, true);
+                return false;
+            }
+        });
         settings = findViewById(R.id.settings);
         settings.setOnClickListener(new View.OnClickListener() {
             @Override
