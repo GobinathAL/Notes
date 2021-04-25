@@ -8,6 +8,7 @@
         android:layout_width="match_parent"
         android:layout_height="100dp"
         app:cardCornerRadius="15dp"
+        android:checkable="false"
         app:cardBackgroundColor="@color/cardview_background">
         <LinearLayout
             android:orientation="vertical"

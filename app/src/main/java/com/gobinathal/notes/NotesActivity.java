@@ -8,6 +8,7 @@ import androidx.core.widget.NestedScrollView;
 
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.provider.ContactsContract;
 import android.text.Editable;
@@ -41,7 +42,13 @@ import com.google.firebase.firestore.ListenerRegistration;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.Iterator;
+import java.util.TimeZone;
 import java.util.function.Consumer;
 
 public class NotesActivity extends AppCompatActivity {
@@ -51,7 +58,7 @@ public class NotesActivity extends AppCompatActivity {
     private ImageButton settings;
     private MaterialCardView cardView;
     private TextInputEditText searchField;
-    private ArrayList<TodoItem> tasksArr = new ArrayList<TodoItem>();
+    private ArrayList<TodoItem> tasksArr = new ArrayList<TodoItem>(), currentNotes = new ArrayList<TodoItem>();
     private FirebaseFirestore db;
     private DocumentReference dRef;
     private CollectionReference cRef;
@@ -60,6 +67,7 @@ public class NotesActivity extends AppCompatActivity {
     private ListenerRegistration listener;
     private final int ADD_OR_DISCARD = 1;
     private final int EDIT_OR_DISCARD = 2;
+    private static final String DATE_FORMAT = "yyyy-MM-dd HH:mm:ss";
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -80,6 +88,7 @@ public class NotesActivity extends AppCompatActivity {
         db = FirebaseFirestore.getInstance();
         cardView = findViewById(R.id.item_card_view);
         cRef = db.collection(FirebaseAuth.getInstance().getUid());
+        gridAdapter = new CustomGridAdapter(NotesActivity.this, R.layout.grid_item, tasksArr);
         listener = cRef.addSnapshotListener(new EventListener<QuerySnapshot>() {
             @Override
             public void onEvent(@Nullable QuerySnapshot value, @Nullable FirebaseFirestoreException error) {
@@ -98,8 +107,9 @@ public class NotesActivity extends AppCompatActivity {
                     }
                     if(tasksArr != null && tasksArr.size() > 0) {
                         Log.i("NotesActivity", "before setadapter");
-                        gridAdapter = new CustomGridAdapter(NotesActivity.this, R.layout.grid_item, tasksArr);
                         gvItems.setAdapter(gridAdapter);
+                        currentNotes.clear();
+                        currentNotes.addAll(tasksArr);
                         Log.i("NotesActivity", "after setadapter");
                     }
                 }
@@ -114,7 +124,23 @@ public class NotesActivity extends AppCompatActivity {
 
             @Override
             public void onTextChanged(CharSequence s, int start, int before, int count) {
-                String searchText = s.toString();
+                if(s == null) return;
+                String searchText = s.toString().toLowerCase();
+                Log.i("NotesActivity", s.toString() + " " + start + " " + before + " " + count);
+                tasksArr.clear();
+                tasksArr.addAll(currentNotes);
+                if(count == 0 && tasksArr != null) {
+                    gridAdapter.notifyDataSetChanged();
+                    return;
+                }
+                ArrayList<TodoItem> hideList = new ArrayList<TodoItem>();
+                for(TodoItem t : currentNotes) {
+                    if(!t.getTitle().toLowerCase().contains(searchText) && !t.getDescription().toLowerCase().contains(searchText)) {
+                        hideList.add(t);
+                    }
+                }
+                tasksArr.removeAll(hideList);
+                gridAdapter.notifyDataSetChanged();
             }
 
             @Override
@@ -139,14 +165,6 @@ public class NotesActivity extends AppCompatActivity {
                 startActivityForResult(intent, EDIT_OR_DISCARD);
             }
         });
-        gvItems.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
-            @Override
-            public boolean onItemLongClick(AdapterView<?> adapterView, View view, int i, long l) {
-                Log.i("NotesActivity", "" + i);
-                gvItems.setItemChecked(i, true);
-                return false;
-            }
-        });
         settings = findViewById(R.id.settings);
         settings.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -154,6 +172,8 @@ public class NotesActivity extends AppCompatActivity {
                 startActivityForResult(new Intent(NotesActivity.this, SettingsActivity.class), 3);
             }
         });
+        Date d = getUTCdatetimeAsDate();
+        Log.i("NotesActivity", getUTCdatetimeAsString() + "@" + d.toString());
     }
 
     @Override
@@ -170,5 +190,30 @@ public class NotesActivity extends AppCompatActivity {
         String description = s.substring(s.indexOf(", description=") + 14, s.indexOf("}"));
         todoItem.setDescription(description);
         return todoItem;
+    }
+    public static Date getUTCdatetimeAsDate() {
+        return stringDateToDate(getUTCdatetimeAsString());
+    }
+
+    public static String getUTCdatetimeAsString() {
+        final SimpleDateFormat sdf = new SimpleDateFormat(DATE_FORMAT);
+        sdf.setTimeZone(TimeZone.getTimeZone("UTC"));
+        final String utcTime = sdf.format(new Date());
+
+        return utcTime;
+    }
+
+    public static Date stringDateToDate(String StrDate) {
+        Date dateToReturn = null;
+        SimpleDateFormat dateFormat = new SimpleDateFormat(DATE_FORMAT);
+
+        try {
+            dateToReturn = (Date)dateFormat.parse(StrDate);
+        }
+        catch (ParseException e) {
+            e.printStackTrace();
+        }
+
+        return dateToReturn;
     }
 }
