@@ -23,6 +23,7 @@ import android.widget.AdapterView;
 import android.widget.GridView;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
+import android.widget.RelativeLayout;
 import android.widget.Toast;
 
 import com.google.android.material.card.MaterialCardView;
@@ -89,6 +90,8 @@ public class NotesActivity extends AppCompatActivity {
         cardView = findViewById(R.id.item_card_view);
         cRef = db.collection(FirebaseAuth.getInstance().getUid());
         gridAdapter = new CustomGridAdapter(NotesActivity.this, R.layout.grid_item, tasksArr);
+
+        // Firestore database realtime listener
         listener = cRef.addSnapshotListener(new EventListener<QuerySnapshot>() {
             @Override
             public void onEvent(@Nullable QuerySnapshot value, @Nullable FirebaseFirestoreException error) {
@@ -98,23 +101,25 @@ public class NotesActivity extends AppCompatActivity {
                 }
                 if(value != null && !value.isEmpty()) {
                     ArrayList<DocumentSnapshot> todoList= (ArrayList<DocumentSnapshot>) value.getDocuments();
-                    Log.i("fetch", "fetched " + todoList.size());
+                    Log.i("NotesActivity", "fetched " + todoList.size());
                     tasksArr.clear();
                     for(DocumentSnapshot d : todoList) {
                         TodoItem todoItem = new TodoItem(d.getString("title"), d.getString("description"), d.getId());
                         tasksArr.add(todoItem);
-                        Log.i("fetch", todoItem.toString());
+                        Log.i("NotesActivity", todoItem.toString());
                     }
                     if(tasksArr != null && tasksArr.size() > 0) {
-                        Log.i("NotesActivity", "before setadapter");
-                        gvItems.setAdapter(gridAdapter);
                         currentNotes.clear();
                         currentNotes.addAll(tasksArr);
-                        Log.i("NotesActivity", "after setadapter");
+                        gvItems.setAdapter(gridAdapter);
+                        CharSequence searchTerm = searchField.getText().toString();
+                        startSearch(searchTerm, searchTerm.length());
                     }
                 }
             }
         });
+
+        // Updating the grid view when search query is entered
         searchField = findViewById(R.id.search);
         searchField.addTextChangedListener(new TextWatcher() {
             @Override
@@ -124,23 +129,7 @@ public class NotesActivity extends AppCompatActivity {
 
             @Override
             public void onTextChanged(CharSequence s, int start, int before, int count) {
-                if(s == null) return;
-                String searchText = s.toString().toLowerCase();
-                Log.i("NotesActivity", s.toString() + " " + start + " " + before + " " + count);
-                tasksArr.clear();
-                tasksArr.addAll(currentNotes);
-                if(count == 0 && tasksArr != null) {
-                    gridAdapter.notifyDataSetChanged();
-                    return;
-                }
-                ArrayList<TodoItem> hideList = new ArrayList<TodoItem>();
-                for(TodoItem t : currentNotes) {
-                    if(!t.getTitle().toLowerCase().contains(searchText) && !t.getDescription().toLowerCase().contains(searchText)) {
-                        hideList.add(t);
-                    }
-                }
-                tasksArr.removeAll(hideList);
-                gridAdapter.notifyDataSetChanged();
+                startSearch(s, count);
             }
 
             @Override
@@ -148,6 +137,8 @@ public class NotesActivity extends AppCompatActivity {
 
             }
         });
+
+        // Go to AddActivity when fab is clicked
         fab = findViewById(R.id.fab);
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -155,6 +146,8 @@ public class NotesActivity extends AppCompatActivity {
                 startActivityForResult(new Intent(NotesActivity.this, AddActivity.class), ADD_OR_DISCARD);
             }
         });
+
+        // When a grid item is click, go to AddActivity and display the details of the clicked item for the user to edit
         gvItems.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
@@ -165,6 +158,7 @@ public class NotesActivity extends AppCompatActivity {
                 startActivityForResult(intent, EDIT_OR_DISCARD);
             }
         });
+        // Go to SettingsActivity when settings button is clicked
         settings = findViewById(R.id.settings);
         settings.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -172,17 +166,21 @@ public class NotesActivity extends AppCompatActivity {
                 startActivityForResult(new Intent(NotesActivity.this, SettingsActivity.class), 3);
             }
         });
-        Date d = getUTCdatetimeAsDate();
-        Log.i("NotesActivity", getUTCdatetimeAsString() + "@" + d.toString());
     }
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        // If user presses logout in SettingsActivity, go to login screen
         if(requestCode == 3 && resultCode == RESULT_OK) {
             finish();
         }
+        else if(requestCode == EDIT_OR_DISCARD && requestCode == RESULT_OK) {
+            CharSequence s = searchField.getText().toString();
+            startSearch(s, s.length());
+        }
         super.onActivityResult(requestCode, resultCode, data);
     }
+    // Converts a string of the form TodoItem{title='SOME_TITLE', description='SOME_DESCRIPTION'} to TodoItem and returns it
     private TodoItem constructTodoItem(String s) {
         TodoItem todoItem = new TodoItem();
         String title = s.substring(s.indexOf("title=") + 6, s.indexOf(", de"));
@@ -191,29 +189,23 @@ public class NotesActivity extends AppCompatActivity {
         todoItem.setDescription(description);
         return todoItem;
     }
-    public static Date getUTCdatetimeAsDate() {
-        return stringDateToDate(getUTCdatetimeAsString());
-    }
 
-    public static String getUTCdatetimeAsString() {
-        final SimpleDateFormat sdf = new SimpleDateFormat(DATE_FORMAT);
-        sdf.setTimeZone(TimeZone.getTimeZone("UTC"));
-        final String utcTime = sdf.format(new Date());
-
-        return utcTime;
-    }
-
-    public static Date stringDateToDate(String StrDate) {
-        Date dateToReturn = null;
-        SimpleDateFormat dateFormat = new SimpleDateFormat(DATE_FORMAT);
-
-        try {
-            dateToReturn = (Date)dateFormat.parse(StrDate);
+    private void startSearch(CharSequence s, int count) {
+        if(s == null) return;
+        String searchText = s.toString().toLowerCase();
+        tasksArr.clear();
+        tasksArr.addAll(currentNotes);
+        if(count == 0 && tasksArr != null) {
+            gridAdapter.notifyDataSetChanged();
+            return;
         }
-        catch (ParseException e) {
-            e.printStackTrace();
+        ArrayList<TodoItem> hideList = new ArrayList<TodoItem>();
+        for(TodoItem t : currentNotes) {
+            if(!t.getTitle().toLowerCase().contains(searchText) && !t.getDescription().toLowerCase().contains(searchText)) {
+                hideList.add(t);
+            }
         }
-
-        return dateToReturn;
+        tasksArr.removeAll(hideList);
+        gridAdapter.notifyDataSetChanged();
     }
 }

@@ -5,10 +5,10 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context=".AddActivity"
-    android:layout_marginTop="10dp"
-    android:layout_marginBottom="10dp"
-    android:layout_marginRight="20dp"
-    android:layout_marginLeft="20dp">
+    android:paddingTop="10dp"
+    android:paddingBottom="10dp"
+    android:paddingLeft="20dp"
+    android:paddingRight="20dp">
 
     <RelativeLayout
         android:id="@+id/rel_layout"
@@ -55,5 +55,11 @@
         android:cursorVisible="true">
         <requestFocus/>
     </com.google.android.material.textfield.TextInputEditText>
-
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:id="@+id/delete_fab"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentRight="true"
+        android:src="@drawable/ic_baseline_delete_outline_24" />
 </RelativeLayout>

@@ -1,7 +1,10 @@
 package com.gobinathal.notes;
 
+import java.util.Date;
+
 public class TodoItem {
     private String title, description, docid;
+    Date lastModifiedDate;
 
     public TodoItem() {
         this.title = "";
