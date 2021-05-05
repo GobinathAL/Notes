@@ -2,6 +2,7 @@ package com.gobinathal.notes;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.app.AppCompatDelegate;
 
@@ -16,6 +17,7 @@ import android.widget.Toast;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.material.button.MaterialButton;
+import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.snackbar.BaseTransientBottomBar;
 import com.google.android.material.snackbar.Snackbar;
 import com.google.android.material.textfield.TextInputEditText;
@@ -28,6 +30,7 @@ public class LoginActivity extends AppCompatActivity {
     private MaterialButton loginButton;
     private MaterialTextView goToRegsitration;
     private FirebaseAuth auth;
+    AlertDialog dialog;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -67,11 +70,17 @@ public class LoginActivity extends AppCompatActivity {
             Toast.makeText(LoginActivity.this, "Some fields are empty", Toast.LENGTH_SHORT).show();
             return;
         }
+        dialog = new MaterialAlertDialogBuilder(LoginActivity.this)
+                .setView(R.layout.login_dialog)
+                .setCancelable(false)
+                .create();
+        dialog.show();
         auth.signInWithEmailAndPassword(email, password)
                 .addOnSuccessListener(new OnSuccessListener<AuthResult>() {
                     @Override
                     public void onSuccess(AuthResult authResult) {
                         Toast.makeText(LoginActivity.this, "Login Success", Toast.LENGTH_SHORT).show();
+                        dialog.dismiss();
                         startActivityForResult(new Intent(LoginActivity.this, NotesActivity.class), 1);
                         finish();
                     }
@@ -79,6 +88,7 @@ public class LoginActivity extends AppCompatActivity {
         .addOnFailureListener(new OnFailureListener() {
             @Override
             public void onFailure(@NonNull Exception e) {
+                dialog.dismiss();
                 Snackbar.make(findViewById(R.id.loginParentLayout), "Login Failed", Snackbar.LENGTH_SHORT).show();
             }
         });
