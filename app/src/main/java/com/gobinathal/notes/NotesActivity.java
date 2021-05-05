@@ -6,6 +6,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.app.AppCompatDelegate;
 import androidx.core.widget.NestedScrollView;
 
+import android.app.ActivityOptions;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Color;
@@ -14,6 +15,7 @@ import android.provider.ContactsContract;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.Log;
+import android.util.Pair;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -155,7 +157,13 @@ public class NotesActivity extends AppCompatActivity {
                 intent.putExtra("title", tasksArr.get(position).getTitle());
                 intent.putExtra("description", tasksArr.get(position).getDescription());
                 intent.putExtra("docid", tasksArr.get(position).getDocid());
-                startActivityForResult(intent, EDIT_OR_DISCARD);
+                Pair[] pairs = new Pair[2];
+                MaterialTextView titleView = view.findViewById(R.id.item_title);
+                MaterialTextView descriptionView = view.findViewById(R.id.item_description);
+                pairs[0] = new Pair<View, String>(titleView, "title_transition");
+                pairs[1] = new Pair<View, String>(descriptionView, "description_transition");
+                ActivityOptions options = ActivityOptions.makeSceneTransitionAnimation(NotesActivity.this, pairs);
+                startActivityForResult(intent, EDIT_OR_DISCARD, options.toBundle());
             }
         });
         // Go to SettingsActivity when settings button is clicked
@@ -174,7 +182,7 @@ public class NotesActivity extends AppCompatActivity {
         if(requestCode == 3 && resultCode == RESULT_OK) {
             finish();
         }
-        else if(requestCode == EDIT_OR_DISCARD && requestCode == RESULT_OK) {
+        else if(requestCode == EDIT_OR_DISCARD && resultCode == RESULT_OK) {
             CharSequence s = searchField.getText().toString();
             startSearch(s, s.length());
         }

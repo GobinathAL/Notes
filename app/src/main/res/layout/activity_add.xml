@@ -20,15 +20,16 @@
             android:id="@+id/discard"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:contentDescription="back button"
             android:src="@drawable/ic_baseline_arrow_back_24"
-            android:layout_alignParentLeft="true"
+            android:layout_alignParentStart="true"
             app:cornerRadius="50dp" />
         <com.google.android.material.button.MaterialButton
             android:id="@+id/save_button"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="save"
-            android:layout_alignParentRight="true"
+            android:layout_alignParentEnd="true"
             android:visibility="gone"
             app:cornerRadius="50dp"/>
     </RelativeLayout>
@@ -39,10 +40,11 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="10dp"
         android:hint="Enter title here"
-        android:textSize="30dp"
+        android:textSize="30sp"
         android:inputType="textCapWords"
         android:background="@color/material_on_primary_disabled"
-        android:textStyle="bold" />
+        android:textStyle="bold"
+        android:transitionName="title_transition"/>
     <com.google.android.material.textfield.TextInputEditText
         android:id="@+id/input_description"
         android:layout_width="match_parent"
@@ -52,14 +54,16 @@
         android:gravity="top"
         android:background="@color/material_on_primary_disabled"
         android:hint="Enter description here"
-        android:cursorVisible="true">
+        android:cursorVisible="true"
+        android:transitionName="description_transition">
         <requestFocus/>
     </com.google.android.material.textfield.TextInputEditText>
     <com.google.android.material.floatingactionbutton.FloatingActionButton
         android:id="@+id/delete_fab"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:contentDescription="delete icon"
         android:layout_alignParentBottom="true"
-        android:layout_alignParentRight="true"
+        android:layout_alignParentEnd="true"
         android:src="@drawable/ic_baseline_delete_outline_24" />
 </RelativeLayout>

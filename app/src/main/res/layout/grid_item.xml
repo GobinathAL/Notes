@@ -20,16 +20,18 @@
                 android:id="@+id/item_title"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:textSize="20dp"
+                android:textSize="20sp"
                 android:text="title"
-                android:textStyle="bold"/>
+                android:textStyle="bold"
+                android:transitionName="title_transition"/>
             <com.google.android.material.textview.MaterialTextView
                 android:id="@+id/item_description"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:maxLines="2"
-                android:textSize="15dp"
-                android:text="description"/>
+                android:textSize="15sp"
+                android:text="description"
+                android:transitionName="description_transition"/>
             <com.google.android.material.textview.MaterialTextView
                 android:id="@+id/item_docid"
                 android:layout_width="wrap_content"

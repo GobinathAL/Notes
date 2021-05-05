@@ -12,8 +12,9 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.Notes">
-        <activity android:name=".SettingsActivity"></activity>
-        <activity android:name=".AddActivity" />
+        <activity android:name=".SettingsActivity"/>
+        <activity android:name=".AddActivity"
+            android:windowSoftInputMode="adjustResize"/>
         <activity android:name=".NotesActivity" />
         <activity android:name=".RegisterActivity" />
         <activity android:name=".LoginActivity">

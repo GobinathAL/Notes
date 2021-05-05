@@ -90,8 +90,7 @@ public class AddActivity extends AppCompatActivity {
         cancelButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                setResult(RESULT_OK);
-                finish();
+                onBackPressed();
             }
         });
         saveButton.setOnClickListener(new View.OnClickListener() {
