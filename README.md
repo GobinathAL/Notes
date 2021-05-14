@@ -1,5 +1,11 @@
 # App Description
-Notes is a simple note taking application using Firebase for cloud storage.
+Notes is a simple note taking application using Firebase for cloud storage. It has the following features.
+* Register an account with email and password
+* Verify the regsitered account
+* Password recovery
+* Saving, editing and deleting notes
+* Searching the saved notes
+* Light and Dark theme support
 
 # Permissions Required
 * android.permission.INTERNET
