@@ -31,6 +31,7 @@ import com.google.android.material.textfield.TextInputLayout;
 import com.google.android.material.textview.MaterialTextView;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 
 public class RegisterActivity extends AppCompatActivity {
 
@@ -131,11 +132,29 @@ public class RegisterActivity extends AppCompatActivity {
                     @Override
                     public void onComplete(@NonNull Task<AuthResult> task) {
                         if(task.isSuccessful()) {
-                            Toast.makeText(RegisterActivity.this, "Registered successfully", Toast.LENGTH_SHORT).show();
-                            startActivity(new Intent(RegisterActivity.this, NotesActivity.class));
-                            finish();
+                            Toast.makeText(RegisterActivity.this, "Registration Success. Check your inbox to verify your email", Toast.LENGTH_SHORT).show();
+                            sendVerificationEmail();
                         } else {
                             Toast.makeText(RegisterActivity.this, "Registration failed", Toast.LENGTH_SHORT).show();
+                        }
+                    }
+                });
+    }
+    private void sendVerificationEmail() {
+        FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+
+        user.sendEmailVerification()
+                .addOnCompleteListener(new OnCompleteListener<Void>() {
+                    @Override
+                    public void onComplete(@NonNull Task<Void> task) {
+                        if(task.isSuccessful()) {
+                            FirebaseAuth.getInstance().signOut();
+                            startActivity(new Intent(RegisterActivity.this, LoginActivity.class));
+                            finish();
+                        }
+                        else {
+                            Log.i("RegisterActivity", "email verification message can't be send");
+                            Toast.makeText(getApplicationContext(), "Email can't be sent. Check the mail id.", Toast.LENGTH_SHORT).show();
                         }
                     }
                 });

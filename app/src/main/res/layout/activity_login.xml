@@ -83,12 +83,24 @@
             android:layout_marginTop="20dp"
             android:text="Login"
             android:layout_gravity="center"/>
+
         <com.google.android.material.textview.MaterialTextView
-            android:id="@+id/register_prompt"
+            android:id="@+id/forgot_password"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="20dp"
             android:layout_gravity="center"
-            android:text="New user? Click here to register" />
+            android:gravity="bottom"
+            android:text="Forgot password?"
+            android:drawableStart="@drawable/ic_baseline_lock_24"
+            android:background="?selectableItemBackground"/>
+        <com.google.android.material.textview.MaterialTextView
+            android:id="@+id/register_prompt"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="40dp"
+            android:layout_gravity="center"
+            android:text="New user? Click here to register"
+            android:background="?selectableItemBackground" />
     </LinearLayout>
 </RelativeLayout>

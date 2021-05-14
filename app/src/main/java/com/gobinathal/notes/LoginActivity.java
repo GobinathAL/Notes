@@ -10,12 +10,15 @@ import android.content.Context;
 import android.content.Intent;
 import android.graphics.Color;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Toast;
 
+import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.gms.tasks.Task;
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.snackbar.BaseTransientBottomBar;
@@ -24,11 +27,12 @@ import com.google.android.material.textfield.TextInputEditText;
 import com.google.android.material.textview.MaterialTextView;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 
 public class LoginActivity extends AppCompatActivity {
     private TextInputEditText email, password;
     private MaterialButton loginButton;
-    private MaterialTextView goToRegsitration;
+    private MaterialTextView goToRegsitration, forgotPassword;
     private FirebaseAuth auth;
     AlertDialog dialog;
     @Override
@@ -53,6 +57,14 @@ public class LoginActivity extends AppCompatActivity {
         });
 
         auth = FirebaseAuth.getInstance();
+
+        forgotPassword = findViewById(R.id.forgot_password);
+        forgotPassword.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                startActivityForResult(new Intent(LoginActivity.this, ForgotPasswordActivity.class), 2);
+            }
+        });
 
         loginButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -79,21 +91,32 @@ public class LoginActivity extends AppCompatActivity {
                 .addOnSuccessListener(new OnSuccessListener<AuthResult>() {
                     @Override
                     public void onSuccess(AuthResult authResult) {
-                        Toast.makeText(LoginActivity.this, "Login Success", Toast.LENGTH_SHORT).show();
                         dialog.dismiss();
-                        startActivityForResult(new Intent(LoginActivity.this, NotesActivity.class), 1);
-                        finish();
+                        checkIfEmailVerified();
                     }
                 })
         .addOnFailureListener(new OnFailureListener() {
             @Override
             public void onFailure(@NonNull Exception e) {
                 dialog.dismiss();
-                Snackbar.make(findViewById(R.id.loginParentLayout), "Login Failed", Snackbar.LENGTH_SHORT).show();
+                Snackbar.make(findViewById(R.id.loginParentLayout), "Login Failed. Check your credentials.", Snackbar.LENGTH_SHORT).show();
             }
         });
     }
 
+    private void checkIfEmailVerified() {
+        FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+
+        if(user.isEmailVerified()) {
+            startActivityForResult(new Intent(LoginActivity.this, NotesActivity.class), 1);
+            finish();
+            Toast.makeText(getApplicationContext(), "Login success", Toast.LENGTH_SHORT).show();
+        }
+        else {
+            FirebaseAuth.getInstance().signOut();
+            Snackbar.make(findViewById(R.id.loginParentLayout), "Verify your email to login!", Snackbar.LENGTH_LONG).show();
+        }
+    }
     @Override
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
