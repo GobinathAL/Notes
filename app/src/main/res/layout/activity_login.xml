@@ -27,35 +27,9 @@
             android:layout_height="wrap_content"
             android:text="Enter your login details to log into your account"
             android:textSize="15sp" />
-        <com.google.android.material.textfield.TextInputLayout
-            android:id="@+id/email_container"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="20dp"
-            android:hint="email"
-            app:errorEnabled="true"
-            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox">
-            <com.google.android.material.textfield.TextInputEditText
-                android:id="@+id/email"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:inputType="textEmailAddress"/>
-        </com.google.android.material.textfield.TextInputLayout>
-        <com.google.android.material.textfield.TextInputLayout
-            android:id="@+id/password_container"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="20dp"
-            android:hint="Password"
-            app:errorEnabled="true"
-            app:endIconMode="custom"
-            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox">
-            <com.google.android.material.textfield.TextInputEditText
-                android:id="@+id/password"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:inputType="textPassword"/>
-        </com.google.android.material.textfield.TextInputLayout>
+
+        <include layout="@layout/credentials" />
+
         <com.google.android.material.textfield.TextInputLayout
             android:id="@+id/confirm_password_container"
             android:layout_width="match_parent"

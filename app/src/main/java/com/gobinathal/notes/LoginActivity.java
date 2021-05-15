@@ -2,6 +2,7 @@ package com.gobinathal.notes;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.text.method.PasswordTransformationMethod;
 import android.view.View;
 import android.widget.Toast;
 
@@ -13,17 +14,21 @@ import androidx.appcompat.app.AppCompatActivity;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.material.button.MaterialButton;
+import com.google.android.material.checkbox.MaterialCheckBox;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.snackbar.Snackbar;
 import com.google.android.material.textfield.TextInputEditText;
+import com.google.android.material.textfield.TextInputLayout;
 import com.google.android.material.textview.MaterialTextView;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 
 public class LoginActivity extends AppCompatActivity {
+    private TextInputLayout emailContainer, passwordContainer;
     private TextInputEditText email, password;
     private MaterialButton loginButton;
+    private MaterialCheckBox showPassword;
     private MaterialTextView goToRegsitration, forgotPassword;
     private FirebaseAuth auth;
     AlertDialog dialog;
@@ -35,10 +40,31 @@ public class LoginActivity extends AppCompatActivity {
             finish();
         }
         setContentView(R.layout.activity_login);
+
+        emailContainer = findViewById(R.id.email_container);
         email = findViewById(R.id.email);
+        passwordContainer = findViewById(R.id.password_container);
         password = findViewById(R.id.password);
         loginButton = findViewById(R.id.button);
+        showPassword = findViewById(R.id.show_password);
         goToRegsitration = findViewById(R.id.register_prompt);
+        forgotPassword = findViewById(R.id.forgot_password);
+
+        RegisterActivity.checkEmailOnFocusChanged(emailContainer, email);
+
+        showPassword.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if(showPassword.isChecked()) {
+                    password.setTransformationMethod(null);
+                }
+                else {
+                    password.setTransformationMethod(new PasswordTransformationMethod());
+                }
+                password.setSelection(password.getText().length());
+            }
+        });
+
         goToRegsitration.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -49,7 +75,6 @@ public class LoginActivity extends AppCompatActivity {
 
         auth = FirebaseAuth.getInstance();
 
-        forgotPassword = findViewById(R.id.forgot_password);
         forgotPassword.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -60,10 +85,10 @@ public class LoginActivity extends AppCompatActivity {
         loginButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                if(!RegisterActivity.verifyEnteredEmail(emailContainer, email) || !RegisterActivity.verifyEnteredPass(passwordContainer, password)) return;
                 String txt_email = email.getText().toString();
                 String txt_password = password.getText().toString();
-                if(email != null && password != null)
-                    loginUser(txt_email, txt_password);
+                loginUser(txt_email, txt_password);
             }
         });
     }

@@ -43,8 +43,7 @@
         android:textSize="30sp"
         android:inputType="textCapWords"
         android:background="@color/material_on_primary_disabled"
-        android:textStyle="bold"
-        android:transitionName="title_transition"/>
+        android:textStyle="bold"/>
     <com.google.android.material.textfield.TextInputEditText
         android:id="@+id/input_description"
         android:layout_width="match_parent"
@@ -54,8 +53,7 @@
         android:gravity="top"
         android:background="@color/material_on_primary_disabled"
         android:hint="Enter description here"
-        android:cursorVisible="true"
-        android:transitionName="description_transition">
+        android:cursorVisible="true">
         <requestFocus/>
     </com.google.android.material.textfield.TextInputEditText>
     <com.google.android.material.floatingactionbutton.FloatingActionButton
@@ -65,5 +63,6 @@
         android:contentDescription="delete icon"
         android:layout_alignParentBottom="true"
         android:layout_alignParentEnd="true"
+        android:visibility="gone"
         android:src="@drawable/ic_baseline_delete_outline_24" />
 </RelativeLayout>

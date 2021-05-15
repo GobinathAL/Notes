@@ -1,13 +1,11 @@
 package com.gobinathal.notes;
 
-import android.app.ActivityOptions;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.Log;
-import android.util.Pair;
 import android.view.View;
 import android.view.ViewStub;
 import android.widget.AdapterView;
@@ -21,7 +19,6 @@ import androidx.appcompat.app.AppCompatDelegate;
 import com.google.android.material.card.MaterialCardView;
 import com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton;
 import com.google.android.material.textfield.TextInputEditText;
-import com.google.android.material.textview.MaterialTextView;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentReference;
@@ -137,13 +134,7 @@ public class NotesActivity extends AppCompatActivity {
                 intent.putExtra("title", tasksArr.get(position).getTitle());
                 intent.putExtra("description", tasksArr.get(position).getDescription());
                 intent.putExtra("docid", tasksArr.get(position).getDocid());
-                Pair[] pairs = new Pair[2];
-                MaterialTextView titleView = view.findViewById(R.id.item_title);
-                MaterialTextView descriptionView = view.findViewById(R.id.item_description);
-                pairs[0] = new Pair<View, String>(titleView, "title_transition");
-                pairs[1] = new Pair<View, String>(descriptionView, "description_transition");
-                ActivityOptions options = ActivityOptions.makeSceneTransitionAnimation(NotesActivity.this, pairs);
-                startActivityForResult(intent, EDIT_OR_DISCARD, options.toBundle());
+                startActivityForResult(intent, EDIT_OR_DISCARD);
             }
         });
         // Go to SettingsActivity when settings button is clicked

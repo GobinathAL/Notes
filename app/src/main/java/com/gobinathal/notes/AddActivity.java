@@ -39,10 +39,13 @@ public class AddActivity extends AppCompatActivity {
         saveButton = findViewById(R.id.save_button);
         inputTitle = findViewById(R.id.input_title);
         inputDescription = findViewById(R.id.input_description);
+        deleteFab = null;
         if(bundle != null) {
             docid = bundle.getString("docid");
             inputTitle.setText(bundle.getString("title"));
             inputDescription.setText(bundle.getString("description"));
+            deleteFab = findViewById(R.id.delete_fab);
+            deleteFab.setVisibility(View.VISIBLE);
         }
         inputTitle.addTextChangedListener(new TextWatcher() {
             @Override
@@ -105,7 +108,7 @@ public class AddActivity extends AppCompatActivity {
             }
         });
 
-        deleteFab = findViewById(R.id.delete_fab);
+        if(deleteFab == null) return;
         deleteFab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {

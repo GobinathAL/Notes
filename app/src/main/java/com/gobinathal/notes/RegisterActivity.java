@@ -25,7 +25,7 @@ import com.google.firebase.auth.FirebaseUser;
 public class RegisterActivity extends AppCompatActivity {
 
     private TextInputEditText email, password, confirmPassword;
-    private TextInputLayout passwordContainer, confirmPasswordContainer;
+    private TextInputLayout emailContainer, passwordContainer, confirmPasswordContainer;
     private MaterialCheckBox showPassword;
     private MaterialTextView registerHeader, goToLogin;
     private MaterialButton registerButton;
@@ -47,13 +47,17 @@ public class RegisterActivity extends AppCompatActivity {
                 finish();
             }
         });
+        emailContainer = findViewById(R.id.email_container);
         email = findViewById(R.id.email);
         passwordContainer = findViewById(R.id.password_container);
         password = findViewById(R.id.password);
         confirmPassword = findViewById(R.id.confirm_password);
         confirmPasswordContainer = findViewById(R.id.confirm_password_container);
         confirmPasswordContainer.setVisibility(View.VISIBLE);
+        registerButton = findViewById(R.id.button);
+        registerButton.setText("Register");
         showPassword = findViewById(R.id.show_password);
+
         showPassword.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -69,21 +73,14 @@ public class RegisterActivity extends AppCompatActivity {
                 confirmPassword.setSelection(confirmPassword.getText().length());
             }
         });
-        email.setOnFocusChangeListener(new View.OnFocusChangeListener() {
-            @Override
-            public void onFocusChange(View view, boolean b) {
-                if(!b) {
-                    verifyEnteredEmail();
-                }
-            }
-        });
-        registerButton = findViewById(R.id.button);
-        registerButton.setText("Register");
+
+        checkEmailOnFocusChanged(emailContainer, email);
+
         registerButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                boolean b1 = verifyEnteredEmail();
-                boolean b2 = verifyEnteredPass();
+                boolean b1 = verifyEnteredEmail(emailContainer, email);
+                boolean b2 = verifyEnteredPass(passwordContainer, password);
                 boolean b3 = verifyEnteredConfirmPass();
                 if(b1 && b2 && b3) {
                     String txt_email = email.getText().toString();
@@ -94,8 +91,7 @@ public class RegisterActivity extends AppCompatActivity {
         });
     }
 
-    private boolean verifyEnteredEmail() {
-        TextInputLayout emailContainer = findViewById(R.id.email_container);
+    public static boolean verifyEnteredEmail(TextInputLayout emailContainer, TextInputEditText email) {
         if(!Patterns.EMAIL_ADDRESS.matcher(email.getText().toString()).matches()) {
             emailContainer.setError("Invalid email");
             return false;
@@ -104,15 +100,16 @@ public class RegisterActivity extends AppCompatActivity {
         return true;
     }
 
-    private boolean verifyEnteredPass() {
+    public static boolean verifyEnteredPass(TextInputLayout passwordContainer, TextInputEditText password) {
         String txtPassword = password.getText().toString();
         if(txtPassword.length() < 8) {
-            password.setError("Password should have atleast 8 characters");
+            passwordContainer.setError("Password should have atleast 8 characters");
             return false;
         }
-        password.setError(null);
+        passwordContainer.setError(null);
         return true;
     }
+
     private boolean verifyEnteredConfirmPass() {
         String txtConfirmPassword = confirmPassword.getText().toString();
         String txtPassword = password.getText().toString();
@@ -122,6 +119,17 @@ public class RegisterActivity extends AppCompatActivity {
         }
         confirmPasswordContainer.setError(null);
         return true;
+    }
+
+    public static void checkEmailOnFocusChanged(TextInputLayout emailContainer, TextInputEditText email) {
+        email.setOnFocusChangeListener(new View.OnFocusChangeListener() {
+            @Override
+            public void onFocusChange(View view, boolean b) {
+                if(!b) {
+                    verifyEnteredEmail(emailContainer, email);
+                }
+            }
+        });
     }
     private void registerUser(String txt_email, String txt_password) {
         auth.createUserWithEmailAndPassword(txt_email, txt_password)
