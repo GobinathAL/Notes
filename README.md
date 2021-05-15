@@ -16,5 +16,6 @@ Android 8.1+
 # Screenshots
 <img src="https://user-images.githubusercontent.com/58905033/116111814-9fd8df80-a6d4-11eb-8ab9-d4a29e71c042.jpg" height="500" />
 <img src="https://user-images.githubusercontent.com/58905033/116123709-f815de80-a6e0-11eb-9dc9-7509c9c171da.jpg" height="500" />
-<img src="https://user-images.githubusercontent.com/58905033/116123722-fc41fc00-a6e0-11eb-8c09-fc56e09c809d.jpg" height="500" />
+<img src="https://user-images.githubusercontent.com/58905033/118351063-60850c80-b577-11eb-8485-0924e83e8b3e.jpg" height="500" />
+<img src="https://user-images.githubusercontent.com/58905033/118351080-7266af80-b577-11eb-9824-73f5c63aa363.jpg" height="500" />
 
