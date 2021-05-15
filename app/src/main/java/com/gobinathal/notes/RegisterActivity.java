@@ -1,26 +1,15 @@
 package com.gobinathal.notes;
 
-import androidx.annotation.NonNull;
-import androidx.annotation.RequiresApi;
-import androidx.appcompat.app.AppCompatActivity;
-
 import android.content.Intent;
-import android.graphics.BlendMode;
-import android.graphics.BlendModeColorFilter;
-import android.graphics.Color;
-import android.graphics.drawable.Drawable;
-import android.os.Build;
 import android.os.Bundle;
-import android.text.Editable;
-import android.text.InputType;
-import android.text.TextUtils;
-import android.text.TextWatcher;
 import android.text.method.PasswordTransformationMethod;
 import android.util.Log;
 import android.util.Patterns;
 import android.view.View;
-import android.widget.EditText;
 import android.widget.Toast;
+
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.AppCompatActivity;
 
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
@@ -38,18 +27,26 @@ public class RegisterActivity extends AppCompatActivity {
     private TextInputEditText email, password, confirmPassword;
     private TextInputLayout passwordContainer, confirmPasswordContainer;
     private MaterialCheckBox showPassword;
-    private MaterialTextView registerHeader;
+    private MaterialTextView registerHeader, goToLogin;
     private MaterialButton registerButton;
     private FirebaseAuth auth;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
-        findViewById(R.id.register_prompt).setVisibility(View.GONE);
         auth = FirebaseAuth.getInstance();
         registerHeader = findViewById(R.id.login_register_header);
         registerHeader.setText("Register");
-        findViewById(R.id.login_helper_text).setVisibility(View.GONE);
+        findViewById(R.id.forgot_password).setVisibility(View.GONE);
+        goToLogin = findViewById(R.id.register_prompt);
+        goToLogin.setText("Existing user? Click here to login");
+        goToLogin.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                startActivity(new Intent(RegisterActivity.this, LoginActivity.class));
+                finish();
+            }
+        });
         email = findViewById(R.id.email);
         passwordContainer = findViewById(R.id.password_container);
         password = findViewById(R.id.password);
