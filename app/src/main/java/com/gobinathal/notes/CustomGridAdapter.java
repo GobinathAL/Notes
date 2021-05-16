@@ -33,6 +33,8 @@ public class CustomGridAdapter extends ArrayAdapter<TodoItem> {
         title.setText(todoItem.getTitle());
         description.setText(todoItem.getDescription());
         docid.setText(todoItem.getDocid());
+
+        v.setOnClickListener(NotesActivity.noteOnClickListener);
         return v;
     }
 }

@@ -12,7 +12,6 @@
         <!-- Status bar color. -->
         <item name="android:statusBarColor" tools:targetApi="l">?attr/colorPrimaryVariant</item>
         <!-- Customize your theme here. -->
-        <item name="android:windowActivityTransitions">true</item>
     </style>
 
     <style name="Theme.Notes.NoActionBar">
@@ -27,5 +26,16 @@
     <style name="Widget.Notes.Edittext" parent="TextAppearance.MaterialComponents.Button">
         <item name="backgroundColor">@color/white</item>
         <item name="android:textColor">@color/black</item>
+    </style>
+
+    <style name="Widget.App.Toolbar" parent="Widget.MaterialComponents.Toolbar.Primary">
+        <item name="materialThemeOverlay">@style/ThemeOverlay.App.Toolbar</item>
+        <item name="titleTextAppearance">@style/TextAppearance.MaterialComponents.Headline6</item>
+        <item name="subtitleTextAppearance">@style/TextAppearance.MaterialComponents.Subtitle1</item>
+    </style>
+    <style name="ThemeOverlay.App.Toolbar" parent="">
+        <item name="colorPrimary">@color/white</item>
+        <item name="colorPrimaryVariant">@color/grey</item>
+        <item name="colorOnPrimary">@color/black</item>
     </style>
 </resources>

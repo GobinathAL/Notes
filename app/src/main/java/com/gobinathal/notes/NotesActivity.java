@@ -6,16 +6,23 @@ import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.Log;
+import android.view.MenuItem;
 import android.view.View;
+import android.view.ViewGroup;
 import android.view.ViewStub;
 import android.widget.AdapterView;
 import android.widget.GridView;
 import android.widget.ImageButton;
+import android.widget.ListAdapter;
+import android.widget.TextView;
 
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.app.AppCompatDelegate;
+import androidx.appcompat.widget.Toolbar;
 
+import com.google.android.material.appbar.AppBarLayout;
+import com.google.android.material.appbar.MaterialToolbar;
 import com.google.android.material.card.MaterialCardView;
 import com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton;
 import com.google.android.material.textfield.TextInputEditText;
@@ -35,7 +42,7 @@ public class NotesActivity extends AppCompatActivity {
 
     private ViewStub stubGrid;
     private GridView gvItems;
-    private ImageButton settings;
+    private MaterialToolbar toolbar;
     private MaterialCardView cardView;
     private TextInputEditText searchField;
     private ArrayList<TodoItem> tasksArr = new ArrayList<TodoItem>(), currentNotes = new ArrayList<TodoItem>();
@@ -47,7 +54,9 @@ public class NotesActivity extends AppCompatActivity {
     private ListenerRegistration listener;
     private final int ADD_OR_DISCARD = 1;
     private final int EDIT_OR_DISCARD = 2;
+    public static View.OnClickListener noteOnClickListener;
     private static final String DATE_FORMAT = "yyyy-MM-dd HH:mm:ss";
+    private static int NO_OF_COLUMNS = 2;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -63,6 +72,20 @@ public class NotesActivity extends AppCompatActivity {
 
         stubGrid = findViewById(R.id.stub_grid);
         stubGrid.inflate();
+        noteOnClickListener = new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(NotesActivity.this, AddActivity.class);
+                String title = ((TextView) v.findViewById(R.id.item_title)).getText().toString();
+                String description = ((TextView) v.findViewById(R.id.item_description)).getText().toString();
+                String docid = ((TextView) v.findViewById(R.id.item_docid)).getText().toString();
+                intent.putExtra("title", title);
+                intent.putExtra("description", description);
+                intent.putExtra("docid", docid);
+                Log.i("NotesActivity", title + " " + description + " " + docid);
+                startActivityForResult(intent, EDIT_OR_DISCARD);
+            }
+        };
         Log.i("NotesActivity", "inflated stub");
         gvItems = findViewById(R.id.items_gridview);
         db = FirebaseFirestore.getInstance();
@@ -91,58 +114,55 @@ public class NotesActivity extends AppCompatActivity {
                         currentNotes.clear();
                         currentNotes.addAll(tasksArr);
                         gvItems.setAdapter(gridAdapter);
-                        CharSequence searchTerm = searchField.getText().toString();
-                        startSearch(searchTerm, searchTerm.length());
+                        setGridViewHeightBasedOnChildren(gvItems, NO_OF_COLUMNS);
+//                        CharSequence searchTerm = searchField.getText().toString();
+//                        startSearch(searchTerm, searchTerm.length());
                     }
                 }
             }
         });
 
         // Updating the grid view when search query is entered
-        searchField = findViewById(R.id.search);
-        searchField.addTextChangedListener(new TextWatcher() {
+//        searchField = findViewById(R.id.search);
+//        searchField.addTextChangedListener(new TextWatcher() {
+//            @Override
+//            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+//
+//            }
+//
+//            @Override
+//            public void onTextChanged(CharSequence s, int start, int before, int count) {
+//                startSearch(s, count);
+//            }
+//
+//            @Override
+//            public void afterTextChanged(Editable s) {
+//
+//            }
+//        });
+
+        toolbar = findViewById(R.id.top_toolbar);
+        toolbar.setOnMenuItemClickListener(new Toolbar.OnMenuItemClickListener() {
             @Override
-            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+            public boolean onMenuItemClick(MenuItem item) {
+                switch (item.getItemId()) {
+                    case R.id.settings:
+                        startActivityForResult(new Intent(NotesActivity.this, SettingsActivity.class), 3);
+                        return true;
+                    case R.id.search:
 
-            }
-
-            @Override
-            public void onTextChanged(CharSequence s, int start, int before, int count) {
-                startSearch(s, count);
-            }
-
-            @Override
-            public void afterTextChanged(Editable s) {
-
+                        return true;
+                    default:
+                        return false;
+                }
             }
         });
-
         // Go to AddActivity when fab is clicked
         fab = findViewById(R.id.fab);
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 startActivityForResult(new Intent(NotesActivity.this, AddActivity.class), ADD_OR_DISCARD);
-            }
-        });
-
-        // When a grid item is click, go to AddActivity and display the details of the clicked item for the user to edit
-        gvItems.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-            @Override
-            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                Intent intent = new Intent(NotesActivity.this, AddActivity.class);
-                intent.putExtra("title", tasksArr.get(position).getTitle());
-                intent.putExtra("description", tasksArr.get(position).getDescription());
-                intent.putExtra("docid", tasksArr.get(position).getDocid());
-                startActivityForResult(intent, EDIT_OR_DISCARD);
-            }
-        });
-        // Go to SettingsActivity when settings button is clicked
-        settings = findViewById(R.id.settings);
-        settings.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                startActivityForResult(new Intent(NotesActivity.this, SettingsActivity.class), 3);
             }
         });
     }
@@ -154,8 +174,8 @@ public class NotesActivity extends AppCompatActivity {
             finish();
         }
         else if(requestCode == EDIT_OR_DISCARD && resultCode == RESULT_OK) {
-            CharSequence s = searchField.getText().toString();
-            startSearch(s, s.length());
+//            CharSequence s = searchField.getText().toString();
+//            startSearch(s, s.length());
         }
         super.onActivityResult(requestCode, resultCode, data);
     }
@@ -186,5 +206,32 @@ public class NotesActivity extends AppCompatActivity {
         }
         tasksArr.removeAll(hideList);
         gridAdapter.notifyDataSetChanged();
+    }
+
+    private void setGridViewHeightBasedOnChildren(GridView gridView, int columns) {
+        ListAdapter listAdapter = gridView.getAdapter();
+        if (listAdapter == null) {
+            // pre-condition
+            return;
+        }
+
+        int totalHeight = 0;
+        int items = listAdapter.getCount();
+        int rows = 0;
+
+        View listItem = listAdapter.getView(0, null, gridView);
+        listItem.measure(0, 0);
+        totalHeight = listItem.getMeasuredHeight();
+
+        float x = 1;
+        if( items > columns ){
+            x = items/columns;
+            rows = (int) (x + 2);
+            totalHeight *= rows;
+        }
+
+        ViewGroup.LayoutParams params = gridView.getLayoutParams();
+        params.height = totalHeight;
+        gridView.setLayoutParams(params);
     }
 }
