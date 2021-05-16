@@ -4,9 +4,12 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:id="@+id/item_card_view"
     android:layout_width="match_parent"
-    android:layout_height="150dp"
+    android:layout_height="wrap_content"
     app:cardCornerRadius="15dp"
-    android:checkable="false"
+    android:checkable="true"
+    android:focusable="true"
+    android:clickable="true"
+    app:checkedIcon="@drawable/ic_baseline_check_circle_24"
     app:cardBackgroundColor="@color/cardview_background">
     <LinearLayout
         android:orientation="vertical"
@@ -26,7 +29,7 @@
             android:id="@+id/item_description"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:maxLines="2"
+            android:maxLines="3"
             android:textSize="15sp"
             android:text="description"/>
         <com.google.android.material.textview.MaterialTextView

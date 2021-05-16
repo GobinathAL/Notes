@@ -6,6 +6,7 @@ import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.Log;
+import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
@@ -19,7 +20,10 @@ import android.widget.TextView;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.app.AppCompatDelegate;
+import androidx.appcompat.view.ActionMode;
 import androidx.appcompat.widget.Toolbar;
+import androidx.recyclerview.widget.GridLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.android.material.appbar.AppBarLayout;
 import com.google.android.material.appbar.MaterialToolbar;
@@ -37,15 +41,16 @@ import com.google.firebase.firestore.ListenerRegistration;
 import com.google.firebase.firestore.QuerySnapshot;
 
 import java.util.ArrayList;
+import java.util.Collections;
 
 public class NotesActivity extends AppCompatActivity {
 
     private ViewStub stubGrid;
-    private GridView gvItems;
+    private RecyclerView gvItems;
     private MaterialToolbar toolbar;
     private MaterialCardView cardView;
-    private TextInputEditText searchField;
     private ArrayList<TodoItem> tasksArr = new ArrayList<TodoItem>(), currentNotes = new ArrayList<TodoItem>();
+    public static ArrayList<MaterialCardView> cardArr = new ArrayList<MaterialCardView>();
     private FirebaseFirestore db;
     private DocumentReference dRef;
     private CollectionReference cRef;
@@ -55,7 +60,8 @@ public class NotesActivity extends AppCompatActivity {
     private final int ADD_OR_DISCARD = 1;
     private final int EDIT_OR_DISCARD = 2;
     public static View.OnClickListener noteOnClickListener;
-    private static final String DATE_FORMAT = "yyyy-MM-dd HH:mm:ss";
+    public static View.OnLongClickListener noteOnLongClickListener;
+    private ActionMode mActionMode, currMode;
     private static int NO_OF_COLUMNS = 2;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -75,15 +81,33 @@ public class NotesActivity extends AppCompatActivity {
         noteOnClickListener = new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent intent = new Intent(NotesActivity.this, AddActivity.class);
-                String title = ((TextView) v.findViewById(R.id.item_title)).getText().toString();
-                String description = ((TextView) v.findViewById(R.id.item_description)).getText().toString();
-                String docid = ((TextView) v.findViewById(R.id.item_docid)).getText().toString();
-                intent.putExtra("title", title);
-                intent.putExtra("description", description);
-                intent.putExtra("docid", docid);
-                Log.i("NotesActivity", title + " " + description + " " + docid);
-                startActivityForResult(intent, EDIT_OR_DISCARD);
+                if(mActionMode == null) {
+                    Intent intent = new Intent(NotesActivity.this, AddActivity.class);
+                    String title = ((TextView) v.findViewById(R.id.item_title)).getText().toString();
+                    String description = ((TextView) v.findViewById(R.id.item_description)).getText().toString();
+                    String docid = ((TextView) v.findViewById(R.id.item_docid)).getText().toString();
+                    intent.putExtra("title", title);
+                    intent.putExtra("description", description);
+                    intent.putExtra("docid", docid);
+                    Log.i("NotesActivity", title + " " + description + " " + docid);
+                    startActivityForResult(intent, EDIT_OR_DISCARD);
+                }
+                else {
+                    MaterialCardView cv = (MaterialCardView) v;
+                    cv.setChecked(!cv.isChecked());
+                    updateSelectedNotesCount();
+                }
+            }
+        };
+        noteOnLongClickListener = new View.OnLongClickListener() {
+            @Override
+            public boolean onLongClick(View v) {
+                MaterialCardView cv = (MaterialCardView) v;
+                cv.setChecked(!cv.isChecked());
+                if(mActionMode == null) {
+                    mActionMode = startSupportActionMode(mActionModeCallback);
+                }
+                return true;
             }
         };
         Log.i("NotesActivity", "inflated stub");
@@ -91,7 +115,9 @@ public class NotesActivity extends AppCompatActivity {
         db = FirebaseFirestore.getInstance();
         cardView = findViewById(R.id.item_card_view);
         cRef = db.collection(FirebaseAuth.getInstance().getUid());
-        gridAdapter = new CustomGridAdapter(NotesActivity.this, R.layout.grid_item, tasksArr);
+        gvItems.setLayoutManager(new GridLayoutManager(NotesActivity.this, 2));
+        gvItems.addItemDecoration(new SpaceItemDecoration(48, 24));
+        gridAdapter = new CustomGridAdapter(NotesActivity.this, tasksArr);
 
         // Firestore database realtime listener
         listener = cRef.addSnapshotListener(new EventListener<QuerySnapshot>() {
@@ -104,6 +130,7 @@ public class NotesActivity extends AppCompatActivity {
                 if(value != null && !value.isEmpty()) {
                     ArrayList<DocumentSnapshot> todoList= (ArrayList<DocumentSnapshot>) value.getDocuments();
                     Log.i("NotesActivity", "fetched " + todoList.size());
+                    cardArr.clear();
                     tasksArr.clear();
                     for(DocumentSnapshot d : todoList) {
                         TodoItem todoItem = new TodoItem(d.getString("title"), d.getString("description"), d.getId());
@@ -114,32 +141,12 @@ public class NotesActivity extends AppCompatActivity {
                         currentNotes.clear();
                         currentNotes.addAll(tasksArr);
                         gvItems.setAdapter(gridAdapter);
-                        setGridViewHeightBasedOnChildren(gvItems, NO_OF_COLUMNS);
 //                        CharSequence searchTerm = searchField.getText().toString();
 //                        startSearch(searchTerm, searchTerm.length());
                     }
                 }
             }
         });
-
-        // Updating the grid view when search query is entered
-//        searchField = findViewById(R.id.search);
-//        searchField.addTextChangedListener(new TextWatcher() {
-//            @Override
-//            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
-//
-//            }
-//
-//            @Override
-//            public void onTextChanged(CharSequence s, int start, int before, int count) {
-//                startSearch(s, count);
-//            }
-//
-//            @Override
-//            public void afterTextChanged(Editable s) {
-//
-//            }
-//        });
 
         toolbar = findViewById(R.id.top_toolbar);
         toolbar.setOnMenuItemClickListener(new Toolbar.OnMenuItemClickListener() {
@@ -208,30 +215,59 @@ public class NotesActivity extends AppCompatActivity {
         gridAdapter.notifyDataSetChanged();
     }
 
-    private void setGridViewHeightBasedOnChildren(GridView gridView, int columns) {
-        ListAdapter listAdapter = gridView.getAdapter();
-        if (listAdapter == null) {
-            // pre-condition
-            return;
+    private ActionMode.Callback mActionModeCallback = new ActionMode.Callback() {
+        @Override
+        public boolean onCreateActionMode(ActionMode mode, Menu menu) {
+            mode.getMenuInflater().inflate(R.menu.contextual_app_bar, menu);
+            currMode = mode;
+            updateSelectedNotesCount();
+            return true;
         }
 
-        int totalHeight = 0;
-        int items = listAdapter.getCount();
-        int rows = 0;
-
-        View listItem = listAdapter.getView(0, null, gridView);
-        listItem.measure(0, 0);
-        totalHeight = listItem.getMeasuredHeight();
-
-        float x = 1;
-        if( items > columns ){
-            x = items/columns;
-            rows = (int) (x + 2);
-            totalHeight *= rows;
+        @Override
+        public boolean onPrepareActionMode(ActionMode mode, Menu menu) {
+            return false;
         }
 
-        ViewGroup.LayoutParams params = gridView.getLayoutParams();
-        params.height = totalHeight;
-        gridView.setLayoutParams(params);
+        @Override
+        public boolean onActionItemClicked(ActionMode mode, MenuItem item) {
+            switch (item.getItemId()) {
+                case R.id.menu_share:
+                    mode.finish();
+                    return true;
+                case R.id.menu_delete:
+                    return true;
+                case R.id.menu_select_all:
+                    for(MaterialCardView cv : cardArr)
+                        cv.setChecked(true);
+                    int n = cardArr.size();
+                    currMode.setTitle(n + "/" + n + " selected");
+                    return true;
+                case R.id.menu_unselect_all:
+                    mode.finish();
+                    return true;
+                default:
+                    return false;
+            }
+        }
+
+        @Override
+        public void onDestroyActionMode(ActionMode mode) {
+            mActionMode = null;
+            currMode = null;
+            for(MaterialCardView cv : cardArr) {
+                if(cv.isChecked()) {
+                    cv.setChecked(false);
+                }
+            }
+        }
+    };
+
+    private void updateSelectedNotesCount() {
+        int count = 0;
+        for(MaterialCardView cv : cardArr) {
+            if(cv.isChecked()) count++;
+        }
+        currMode.setTitle(count + "/" + cardArr.size() + " selected");
     }
 }
