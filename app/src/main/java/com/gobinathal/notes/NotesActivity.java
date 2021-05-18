@@ -77,7 +77,6 @@ public class NotesActivity extends AppCompatActivity {
 
         stubGrid = findViewById(R.id.stub_grid);
         stubGrid.inflate();
-
         noteOnClickListener = new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -176,6 +175,7 @@ public class NotesActivity extends AppCompatActivity {
         });
 
         toolbar = findViewById(R.id.top_toolbar);
+        setSupportActionBar(toolbar);
         toolbar.setOnMenuItemClickListener(new Toolbar.OnMenuItemClickListener() {
             @Override
             public boolean onMenuItemClick(MenuItem item) {
@@ -399,5 +399,11 @@ public class NotesActivity extends AppCompatActivity {
             }
             Toast.makeText(getApplicationContext(), "Unpinned", Toast.LENGTH_SHORT).show();
         }
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.top_app_bar, menu);
+        return super.onCreateOptionsMenu(menu);
     }
 }
