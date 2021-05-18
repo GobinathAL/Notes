@@ -15,6 +15,9 @@ import com.google.android.material.textfield.TextInputEditText;
 import com.google.android.material.textfield.TextInputLayout;
 import com.google.firebase.auth.FirebaseAuth;
 
+import static com.gobinathal.notes.Utils.SignIn.checkEmailOnFocusChanged;
+import static com.gobinathal.notes.Utils.SignIn.verifyEnteredEmail;
+
 public class ForgotPasswordActivity extends AppCompatActivity {
 
     private MaterialButton resetPasswordButton;
@@ -29,12 +32,12 @@ public class ForgotPasswordActivity extends AppCompatActivity {
         forgotPasswordEmailInput = findViewById(R.id.forgot_password_email_input);
         resetPasswordButton = findViewById(R.id.reset_password_button);
 
-        RegisterActivity.checkEmailOnFocusChanged(forgotPasswordEmailInputContainer, forgotPasswordEmailInput);
+        checkEmailOnFocusChanged(forgotPasswordEmailInputContainer, forgotPasswordEmailInput);
 
         resetPasswordButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                if(!RegisterActivity.verifyEnteredEmail(forgotPasswordEmailInputContainer, forgotPasswordEmailInput)) return;
+                if(!verifyEnteredEmail(forgotPasswordEmailInputContainer, forgotPasswordEmailInput)) return;
                 String email = forgotPasswordEmailInput.getText().toString();
                 FirebaseAuth.getInstance().sendPasswordResetEmail(email)
                         .addOnCompleteListener(new OnCompleteListener<Void>() {

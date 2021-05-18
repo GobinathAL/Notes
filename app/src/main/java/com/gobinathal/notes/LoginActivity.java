@@ -24,6 +24,10 @@ import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 
+import static com.gobinathal.notes.Utils.SignIn.checkEmailOnFocusChanged;
+import static com.gobinathal.notes.Utils.SignIn.verifyEnteredEmail;
+import static com.gobinathal.notes.Utils.SignIn.verifyEnteredPass;
+
 public class LoginActivity extends AppCompatActivity {
     private TextInputLayout emailContainer, passwordContainer;
     private TextInputEditText email, password;
@@ -50,7 +54,7 @@ public class LoginActivity extends AppCompatActivity {
         goToRegsitration = findViewById(R.id.register_prompt);
         forgotPassword = findViewById(R.id.forgot_password);
 
-        RegisterActivity.checkEmailOnFocusChanged(emailContainer, email);
+        checkEmailOnFocusChanged(emailContainer, email);
 
         showPassword.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -85,7 +89,7 @@ public class LoginActivity extends AppCompatActivity {
         loginButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if(!RegisterActivity.verifyEnteredEmail(emailContainer, email) || !RegisterActivity.verifyEnteredPass(passwordContainer, password)) return;
+                if(!verifyEnteredEmail(emailContainer, email) || !verifyEnteredPass(passwordContainer, password)) return;
                 String txt_email = email.getText().toString();
                 String txt_password = password.getText().toString();
                 loginUser(txt_email, txt_password);
