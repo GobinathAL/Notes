@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <item
+        android:id="@+id/add_menu_pin"
+        android:title="Pin/Unpin"
+        app:showAsAction="always" />
+    <item
+        android:id="@+id/add_menu_favorite"
+        android:title="Fav/Unfav"
+        app:showAsAction="always" />
+    <item
+        android:id="@+id/add_menu_save"
+        android:icon="@drawable/ic_baseline_save_24"
+        android:title="Save"
+        app:showAsAction="always"
+        android:visible="false" />
+</menu>

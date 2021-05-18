@@ -1,68 +1,67 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.coordinatorlayout.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".AddActivity"
-    android:paddingTop="10dp"
-    android:paddingBottom="10dp"
-    android:paddingLeft="20dp"
-    android:paddingRight="20dp">
+    tools:context=".AddActivity">
 
-    <RelativeLayout
-        android:id="@+id/rel_layout"
+    <com.google.android.material.appbar.AppBarLayout
+        android:id="@+id/add_appbarlayout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="horizontal">
+        app:liftOnScroll="false">
 
-        <ImageButton
-            android:id="@+id/discard"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:contentDescription="back button"
-            android:src="@drawable/ic_baseline_arrow_back_24"
-            android:layout_alignParentStart="true"
-            app:cornerRadius="50dp" />
-        <com.google.android.material.button.MaterialButton
-            android:id="@+id/save_button"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="save"
-            android:layout_alignParentEnd="true"
-            android:visibility="gone"
-            app:cornerRadius="50dp"/>
-    </RelativeLayout>
-    <com.google.android.material.textfield.TextInputEditText
-        android:id="@+id/input_title"
-        android:layout_below="@+id/rel_layout"
+        <com.google.android.material.appbar.MaterialToolbar
+            android:id="@+id/add_top_toolbar"
+            android:layout_width="match_parent"
+            android:layout_height="?actionBarSize"
+            app:menu="@menu/edit_add_app_bar"
+            app:layout_scrollFlags="scroll|enterAlways|snap"
+            style="@style/Widget.App.Toolbar" />
+    </com.google.android.material.appbar.AppBarLayout>
+
+    <androidx.core.widget.NestedScrollView
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="10dp"
-        android:hint="Enter title here"
-        android:textSize="30sp"
-        android:inputType="textCapWords"
-        android:background="@color/material_on_primary_disabled"
-        android:textStyle="bold"/>
-    <com.google.android.material.textfield.TextInputEditText
-        android:id="@+id/input_description"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_below="@+id/input_title"
-        android:layout_marginTop="10dp"
-        android:gravity="top"
-        android:background="@color/material_on_primary_disabled"
-        android:hint="Enter description here"
-        android:cursorVisible="true">
-        <requestFocus/>
-    </com.google.android.material.textfield.TextInputEditText>
+        android:layout_height="match_parent"
+        android:padding="20dp"
+        app:layout_behavior="com.google.android.material.appbar.AppBarLayout$ScrollingViewBehavior">
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical">
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/input_title"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="10dp"
+                android:hint="Enter title here"
+                android:textSize="30sp"
+                android:inputType="textCapWords"
+                android:background="@color/material_on_primary_disabled"
+                android:textStyle="bold"/>
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/input_description"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_below="@+id/input_title"
+                android:layout_marginTop="10dp"
+                android:gravity="top"
+                android:background="@color/material_on_primary_disabled"
+                android:hint="Enter description here"
+                android:cursorVisible="true">
+                <requestFocus/>
+            </com.google.android.material.textfield.TextInputEditText>
+        </LinearLayout>
+    </androidx.core.widget.NestedScrollView>
+
     <com.google.android.material.floatingactionbutton.FloatingActionButton
         android:id="@+id/delete_fab"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_margin="20dp"
         android:contentDescription="delete icon"
-        android:layout_alignParentBottom="true"
-        android:layout_alignParentEnd="true"
+        android:layout_gravity="bottom|right"
         android:visibility="gone"
         android:src="@drawable/ic_baseline_delete_outline_24" />
-</RelativeLayout>
+</androidx.coordinatorlayout.widget.CoordinatorLayout>

@@ -12,7 +12,6 @@ import android.view.View;
 import android.view.ViewStub;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
-import android.widget.SearchView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -20,6 +19,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.AppCompatImageView;
+import androidx.appcompat.widget.SearchView;
 import androidx.appcompat.widget.Toolbar;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -65,6 +65,7 @@ public class NotesActivity extends AppCompatActivity {
     private static int NO_OF_COLUMNS = 2;
     private  int SELECTED_COUNT;
     private SharedPreferences sharedPreferences;
+    private SearchView searchView;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -86,11 +87,13 @@ public class NotesActivity extends AppCompatActivity {
                     String description = ((TextView) v.findViewById(R.id.item_description)).getText().toString();
                     String docid = ((TextView) v.findViewById(R.id.item_docid)).getText().toString();
                     ImageButton b = (ImageButton) v.findViewById(R.id.item_favorite);
+                    AppCompatImageView pin = (AppCompatImageView) v.findViewById(R.id.item_pin);
                     Log.i("NotesActivity", b.toString() + " " + b.getDrawable().toString());
                     intent.putExtra("title", title);
                     intent.putExtra("description", description);
                     intent.putExtra("docid", docid);
                     intent.putExtra("isFavorite", (boolean) b.getTag());
+                    intent.putExtra("isPinned", (boolean) pin.getTag());
                     Log.i("NotesActivity", title + " " + description + " " + docid);
                     startActivityForResult(intent, EDIT_OR_DISCARD);
                 }
@@ -165,6 +168,18 @@ public class NotesActivity extends AppCompatActivity {
                     if(tasksArr != null && tasksArr.size() > 0) {
                         currentNotes.clear();
                         currentNotes.addAll(tasksArr);
+                        if(toolbar == null || !toolbar.hasExpandedActionView()) {
+                            gvItems.setAdapter(gridAdapter);
+                            return;
+                        }
+                        tasksArr.clear();
+                        for(TodoItem t : currentNotes) {
+                            String searchTerm = searchView.getQuery().toString().toLowerCase().trim();
+                            if(t.getTitle().toLowerCase().contains(searchTerm)
+                            || t.getDescription().toLowerCase().contains(searchTerm)) {
+                                tasksArr.add(t);
+                            }
+                        }
                         gvItems.setAdapter(gridAdapter);
                     }
                 }
@@ -190,10 +205,6 @@ public class NotesActivity extends AppCompatActivity {
         // If user presses logout in SettingsActivity, go to login screen
         if(requestCode == 3 && resultCode == RESULT_OK) {
             finish();
-        }
-        else if(requestCode == EDIT_OR_DISCARD && resultCode == RESULT_OK) {
-//            CharSequence s = searchField.getText().toString();
-//            startSearch(s, s.length());
         }
         super.onActivityResult(requestCode, resultCode, data);
     }
@@ -361,13 +372,44 @@ public class NotesActivity extends AppCompatActivity {
 
             @Override
             public boolean onMenuItemActionCollapse(MenuItem item) {
+                tasksArr.clear();
+                tasksArr.addAll(currentNotes);
+                gvItems.setAdapter(gridAdapter);
                 return true;
             }
         };
         menu.findItem(R.id.search).setOnActionExpandListener(onActionExpandListener);
-        SearchView searchView = (SearchView) menu.findItem(R.id.search).getActionView();
-        searchView.setQueryHint("Search");
         return super.onCreateOptionsMenu(menu);
+    }
+
+    @Override
+    public boolean onPrepareOptionsMenu(Menu menu) {
+        searchView = (SearchView) menu.findItem(R.id.search).getActionView();
+        searchView.setIconifiedByDefault(false);
+        searchView.setFocusable(true);
+        searchView.setIconified(false);
+        searchView.requestFocusFromTouch();
+        searchView.setQueryHint("Search");
+        searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
+            @Override
+            public boolean onQueryTextSubmit(String query) {
+                return false;
+            }
+
+            @Override
+            public boolean onQueryTextChange(String newText) {
+                String searchPattern = newText.toLowerCase().trim();
+                tasksArr.clear();
+                for(TodoItem t : currentNotes) {
+                    if(t.getTitle().toLowerCase().contains(searchPattern) || t.getDescription().toLowerCase().contains(searchPattern)) {
+                        tasksArr.add(t);
+                    }
+                }
+                gvItems.setAdapter(gridAdapter);
+                return false;
+            }
+        });
+        return super.onPrepareOptionsMenu(menu);
     }
 
     @Override
@@ -377,7 +419,7 @@ public class NotesActivity extends AppCompatActivity {
                 startActivityForResult(new Intent(NotesActivity.this, SettingsActivity.class), 3);
                 return true;
             case R.id.search:
-
+                item.expandActionView();
                 return true;
             case R.id.menu_increase_column:
                 if(NO_OF_COLUMNS == 10) {

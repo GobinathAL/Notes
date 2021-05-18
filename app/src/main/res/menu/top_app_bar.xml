@@ -7,7 +7,7 @@
         android:icon="@drawable/ic_baseline_search_24"
         android:title="Search"
         app:showAsAction="always|collapseActionView"
-        app:actionViewClass="android.widget.SearchView"/>
+        app:actionViewClass="androidx.appcompat.widget.SearchView" />
     <item
         android:id="@+id/settings"
         android:icon="@drawable/ic_baseline_settings_24"
