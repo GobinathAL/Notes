@@ -1,14 +1,13 @@
 package com.gobinathal.notes;
 
 import android.content.Context;
-import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ArrayAdapter;
+import android.widget.ImageButton;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
+import androidx.appcompat.widget.AppCompatImageView;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.android.material.card.MaterialCardView;
@@ -38,6 +37,16 @@ public class CustomGridAdapter extends RecyclerView.Adapter<CustomGridAdapter.Vi
         holder.title.setText(todoItem.getTitle());
         holder.description.setText(todoItem.getDescription());
         holder.docid.setText(todoItem.getDocid());
+        if(todoItem.isFavorite())
+            holder.favorite.setImageResource(R.drawable.ic_baseline_favorite_24);
+        else
+            holder.favorite.setImageResource(R.drawable.ic_baseline_favorite_border_24);
+        holder.favorite.setTag(new Boolean(todoItem.isFavorite()));
+        if(todoItem.isPinned())
+            holder.pinned.setImageResource(R.drawable.ic_baseline_push_pin_24);
+        else
+            holder.pinned.setImageDrawable(null);
+        holder.pinned.setTag(new Boolean(todoItem.isPinned()));
     }
 
     @Override
@@ -45,9 +54,11 @@ public class CustomGridAdapter extends RecyclerView.Adapter<CustomGridAdapter.Vi
         return itemList.size();
     }
 
-    public class ViewHolder extends RecyclerView.ViewHolder {
+    public class ViewHolder extends RecyclerView.ViewHolder{
         MaterialCardView root;
         MaterialTextView title, description, docid;
+        ImageButton favorite;
+        AppCompatImageView pinned;
 
         public ViewHolder(View itemView) {
             super(itemView);
@@ -55,6 +66,9 @@ public class CustomGridAdapter extends RecyclerView.Adapter<CustomGridAdapter.Vi
             title = itemView.findViewById(R.id.item_title);
             description = itemView.findViewById(R.id.item_description);
             docid = itemView.findViewById(R.id.item_docid);
+            favorite = itemView.findViewById(R.id.item_favorite);
+            favorite.setOnClickListener(NotesActivity.favoriteOnClickListener);
+            pinned = itemView.findViewById(R.id.item_pin);
             root = itemView.findViewById(R.id.item_card_view);
             NotesActivity.cardArr.add(root);
             root.setOnClickListener(NotesActivity.noteOnClickListener);

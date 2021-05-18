@@ -1,35 +1,32 @@
 package com.gobinathal.notes;
 
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
-import android.text.Editable;
-import android.text.TextWatcher;
 import android.util.Log;
+import android.view.ActionMode;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.ViewGroup;
 import android.view.ViewStub;
-import android.widget.AdapterView;
-import android.widget.GridView;
 import android.widget.ImageButton;
-import android.widget.ListAdapter;
+import android.widget.LinearLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.appcompat.app.AppCompatDelegate;
-import androidx.appcompat.view.ActionMode;
+import androidx.appcompat.widget.AppCompatImageView;
 import androidx.appcompat.widget.Toolbar;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.google.android.material.appbar.AppBarLayout;
 import com.google.android.material.appbar.MaterialToolbar;
 import com.google.android.material.card.MaterialCardView;
+import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton;
-import com.google.android.material.textfield.TextInputEditText;
+import com.google.android.material.textview.MaterialTextView;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentReference;
@@ -41,7 +38,10 @@ import com.google.firebase.firestore.ListenerRegistration;
 import com.google.firebase.firestore.QuerySnapshot;
 
 import java.util.ArrayList;
-import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
+
+import static com.gobinathal.notes.Theme.Preferences.setPreferredTheme;
 
 public class NotesActivity extends AppCompatActivity {
 
@@ -49,6 +49,7 @@ public class NotesActivity extends AppCompatActivity {
     private RecyclerView gvItems;
     private MaterialToolbar toolbar;
     private MaterialCardView cardView;
+    private ImageButton favorite;
     private ArrayList<TodoItem> tasksArr = new ArrayList<TodoItem>(), currentNotes = new ArrayList<TodoItem>();
     public static ArrayList<MaterialCardView> cardArr = new ArrayList<MaterialCardView>();
     private FirebaseFirestore db;
@@ -59,25 +60,24 @@ public class NotesActivity extends AppCompatActivity {
     private ListenerRegistration listener;
     private final int ADD_OR_DISCARD = 1;
     private final int EDIT_OR_DISCARD = 2;
-    public static View.OnClickListener noteOnClickListener;
+    public static View.OnClickListener noteOnClickListener, favoriteOnClickListener;
     public static View.OnLongClickListener noteOnLongClickListener;
     private ActionMode mActionMode, currMode;
     private static int NO_OF_COLUMNS = 2;
+    private  int SELECTED_COUNT;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        SharedPreferences sharedPreferences = getSharedPreferences("ThemePref", MODE_PRIVATE);
-        int theme = sharedPreferences.getInt("Theme", 0);
-        if(theme == 0)
-            AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM);
-        else if(theme == 1)
-            AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO);
-        else if(theme == 2)
-            AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES);
         setContentView(R.layout.activity_notes);
+
+        setPreferredTheme(this);
+        SharedPreferences sharedPreferences = getSharedPreferences("ThemePref", MODE_PRIVATE);
+        NO_OF_COLUMNS = sharedPreferences.getInt("ColumnCount", 0);
+        NO_OF_COLUMNS = (NO_OF_COLUMNS == 0) ? 2 : NO_OF_COLUMNS;
 
         stubGrid = findViewById(R.id.stub_grid);
         stubGrid.inflate();
+
         noteOnClickListener = new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -86,9 +86,12 @@ public class NotesActivity extends AppCompatActivity {
                     String title = ((TextView) v.findViewById(R.id.item_title)).getText().toString();
                     String description = ((TextView) v.findViewById(R.id.item_description)).getText().toString();
                     String docid = ((TextView) v.findViewById(R.id.item_docid)).getText().toString();
+                    ImageButton b = (ImageButton) v.findViewById(R.id.item_favorite);
+                    Log.i("NotesActivity", b.toString() + " " + b.getDrawable().toString());
                     intent.putExtra("title", title);
                     intent.putExtra("description", description);
                     intent.putExtra("docid", docid);
+                    intent.putExtra("isFavorite", (boolean) b.getTag());
                     Log.i("NotesActivity", title + " " + description + " " + docid);
                     startActivityForResult(intent, EDIT_OR_DISCARD);
                 }
@@ -96,6 +99,7 @@ public class NotesActivity extends AppCompatActivity {
                     MaterialCardView cv = (MaterialCardView) v;
                     cv.setChecked(!cv.isChecked());
                     updateSelectedNotesCount();
+                    currMode.invalidate();
                 }
             }
         };
@@ -105,9 +109,25 @@ public class NotesActivity extends AppCompatActivity {
                 MaterialCardView cv = (MaterialCardView) v;
                 cv.setChecked(!cv.isChecked());
                 if(mActionMode == null) {
-                    mActionMode = startSupportActionMode(mActionModeCallback);
+                    mActionMode = toolbar.startActionMode(mActionModeCallback);
                 }
                 return true;
+            }
+        };
+
+        favoriteOnClickListener = new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                ImageButton fav = (ImageButton) v;
+                LinearLayout l= (LinearLayout) v.getParent();
+                MaterialTextView docidView = l.findViewById(R.id.item_docid);
+                String docid = docidView.getText().toString();
+
+                Map<String, Object> data = new HashMap<String, Object>();
+                data.put("isFavorite", !(boolean) fav.getTag());
+                FirebaseFirestore db = FirebaseFirestore.getInstance();
+                db.collection(FirebaseAuth.getInstance().getUid()).document(docid).update(data);
+                Log.i("NotesActivity", ((boolean) fav.getTag()) + " ");
             }
         };
         Log.i("NotesActivity", "inflated stub");
@@ -115,7 +135,7 @@ public class NotesActivity extends AppCompatActivity {
         db = FirebaseFirestore.getInstance();
         cardView = findViewById(R.id.item_card_view);
         cRef = db.collection(FirebaseAuth.getInstance().getUid());
-        gvItems.setLayoutManager(new GridLayoutManager(NotesActivity.this, 2));
+        gvItems.setLayoutManager(new GridLayoutManager(NotesActivity.this, NO_OF_COLUMNS));
         gvItems.addItemDecoration(new SpaceItemDecoration(48, 24));
         gridAdapter = new CustomGridAdapter(NotesActivity.this, tasksArr);
 
@@ -133,9 +153,16 @@ public class NotesActivity extends AppCompatActivity {
                     cardArr.clear();
                     tasksArr.clear();
                     for(DocumentSnapshot d : todoList) {
-                        TodoItem todoItem = new TodoItem(d.getString("title"), d.getString("description"), d.getId());
+                        TodoItem todoItem = new TodoItem(d.getString("title"), d.getString("description"), d.getId(), d.getBoolean("isFavorite"), d.getBoolean("isPinned"));
                         tasksArr.add(todoItem);
                         Log.i("NotesActivity", todoItem.toString());
+                    }
+                    int index = 0;
+                    for(int i = 0; i < tasksArr.size(); i++) {
+                        TodoItem t = tasksArr.get(i);
+                        if(!t.isPinned()) continue;
+                        tasksArr.remove(t);
+                        tasksArr.add(index, t);
                     }
                     if(tasksArr != null && tasksArr.size() > 0) {
                         currentNotes.clear();
@@ -159,6 +186,22 @@ public class NotesActivity extends AppCompatActivity {
                     case R.id.search:
 
                         return true;
+                    case R.id.menu_increase_column:
+                        if(NO_OF_COLUMNS == 10) {
+                            Toast.makeText(getApplicationContext(), "Columns cannot exceed 10", Toast.LENGTH_SHORT).show();
+                            return true;
+                        }
+                        gvItems.setLayoutManager(new GridLayoutManager(NotesActivity.this, ++NO_OF_COLUMNS));
+                        sharedPreferences.edit().putInt("ColumnCount", NO_OF_COLUMNS).apply();
+                        return true;
+                    case R.id.menu_decrease_column:
+                        if(NO_OF_COLUMNS == 1) {
+                            Toast.makeText(getApplicationContext(), "Columns cannot be 0", Toast.LENGTH_SHORT).show();
+                            return true;
+                        }
+                        gvItems.setLayoutManager(new GridLayoutManager(NotesActivity.this, --NO_OF_COLUMNS));
+                        sharedPreferences.edit().putInt("ColumnCount", NO_OF_COLUMNS).apply();
+                        return true;
                     default:
                         return false;
                 }
@@ -172,6 +215,7 @@ public class NotesActivity extends AppCompatActivity {
                 startActivityForResult(new Intent(NotesActivity.this, AddActivity.class), ADD_OR_DISCARD);
             }
         });
+
     }
 
     @Override
@@ -185,15 +229,6 @@ public class NotesActivity extends AppCompatActivity {
 //            startSearch(s, s.length());
         }
         super.onActivityResult(requestCode, resultCode, data);
-    }
-    // Converts a string of the form TodoItem{title='SOME_TITLE', description='SOME_DESCRIPTION'} to TodoItem and returns it
-    private TodoItem constructTodoItem(String s) {
-        TodoItem todoItem = new TodoItem();
-        String title = s.substring(s.indexOf("title=") + 6, s.indexOf(", de"));
-        todoItem.setTitle(title);
-        String description = s.substring(s.indexOf(", description=") + 14, s.indexOf("}"));
-        todoItem.setDescription(description);
-        return todoItem;
     }
 
     private void startSearch(CharSequence s, int count) {
@@ -226,16 +261,48 @@ public class NotesActivity extends AppCompatActivity {
 
         @Override
         public boolean onPrepareActionMode(ActionMode mode, Menu menu) {
-            return false;
+            boolean hasUnpinnedNote = false;
+            int count = 0;
+            for(MaterialCardView cv : cardArr) {
+                if(cv.isChecked()) count++;
+                ImageButton fav = cv.findViewById(R.id.item_favorite);
+                fav.setClickable(false);
+                cv.setLongClickable(false);
+                AppCompatImageView pin = cv.findViewById(R.id.item_pin);
+                if(cv.isChecked() && !(boolean) pin.getTag()) hasUnpinnedNote = true;
+            }
+            Log.i("NotesActivity", "Unpinned note is checked");
+            MenuItem item;
+            Log.i("NotesActivity", menu.toString());
+            item = menu.findItem(R.id.menu_pin);
+            if(count == 0) {
+                item.setVisible(false);
+                return true;
+            }
+            item.setVisible(true);
+            if(hasUnpinnedNote) {
+                item.setIcon(R.drawable.ic_baseline_push_pin_24);
+                item.setContentDescription("pin");
+            }
+            else {
+                item.setIcon(R.drawable.ic_unpin);
+                item.setContentDescription("unpin");
+            }
+            return true;
         }
 
         @Override
         public boolean onActionItemClicked(ActionMode mode, MenuItem item) {
             switch (item.getItemId()) {
-                case R.id.menu_share:
+                case R.id.menu_pin:
+                    pinOrUnpinSelectedNotes(item);
                     mode.finish();
                     return true;
                 case R.id.menu_delete:
+                    deleteSelectedNotes();
+                    return true;
+                case R.id.menu_share:
+                    mode.finish();
                     return true;
                 case R.id.menu_select_all:
                     for(MaterialCardView cv : cardArr)
@@ -256,9 +323,12 @@ public class NotesActivity extends AppCompatActivity {
             mActionMode = null;
             currMode = null;
             for(MaterialCardView cv : cardArr) {
+                ImageButton fav = cv.findViewById(R.id.item_favorite);
+                fav.setClickable(true);
                 if(cv.isChecked()) {
                     cv.setChecked(false);
                 }
+                cv.setLongClickable(true);
             }
         }
     };
@@ -268,6 +338,66 @@ public class NotesActivity extends AppCompatActivity {
         for(MaterialCardView cv : cardArr) {
             if(cv.isChecked()) count++;
         }
+        SELECTED_COUNT = count;
         currMode.setTitle(count + "/" + cardArr.size() + " selected");
+    }
+
+    private void deleteSelectedNotes() {
+        new MaterialAlertDialogBuilder(NotesActivity.this)
+                .setTitle("Delete")
+                .setMessage("Are you sure you want to delete?")
+                .setPositiveButton("Delete", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        int count = 0;
+                        Log.i("NotesActivity", cardArr.size() + "");
+                        for(MaterialCardView cv : cardArr) {
+                            Log.i("NotesActivity", cv.isChecked() + "");
+                            if(!cv.isChecked()) continue;
+                            count++;
+                            MaterialTextView docidView = cv.findViewById(R.id.item_docid);
+                            String docid = docidView.getText().toString();
+                            db.collection(FirebaseAuth.getInstance().getUid()).document(docid).delete();
+                        }
+                        Toast.makeText(NotesActivity.this, count + " notes deleted", Toast.LENGTH_SHORT).show();
+                        currMode.finish();
+                    }
+                })
+                .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+
+                    }
+                })
+                .show();
+    }
+
+    private void pinOrUnpinSelectedNotes(MenuItem item) {
+        Log.i("NotesActivity", "pinorunpin");
+        Log.i("NotesActivity", item.getContentDescription().toString());
+        if(item.getContentDescription().toString().equals("pin")) {
+            Log.i("NotesActivity", "pin");
+            for(MaterialCardView cv : cardArr) {
+                if(!cv.isChecked()) continue;
+                MaterialTextView docidView = cv.findViewById(R.id.item_docid);
+                String docid = docidView.getText().toString();
+                Map<String, Object> data  = new HashMap<String, Object>();
+                data.put("isPinned", true);
+                db.collection(FirebaseAuth.getInstance().getUid()).document(docid).update(data);
+            }
+            Toast.makeText(getApplicationContext(), "Pinned", Toast.LENGTH_SHORT).show();
+        }
+        else if(item.getContentDescription().toString().equals("unpin")) {
+            Log.i("NotesActivity", "unpin");
+            for(MaterialCardView cv : cardArr) {
+                if(!cv.isChecked()) continue;
+                MaterialTextView docidView = cv.findViewById(R.id.item_docid);
+                String docid = docidView.getText().toString();
+                Map<String, Object> data = new HashMap<String, Object>();
+                data.put("isPinned", false);
+                db.collection(FirebaseAuth.getInstance().getUid()).document(docid).update(data);
+            }
+            Toast.makeText(getApplicationContext(), "Unpinned", Toast.LENGTH_SHORT).show();
+        }
     }
 }

@@ -29,6 +29,9 @@ import com.google.firebase.auth.EmailAuthProvider;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 
+import static com.gobinathal.notes.Utils.SignIn.verifyEnteredEmail;
+import static com.gobinathal.notes.Utils.SignIn.verifyEnteredPass;
+
 public class SettingsActivity extends AppCompatActivity {
 
     private ImageButton goBack, twitter;
@@ -136,7 +139,7 @@ public class SettingsActivity extends AppCompatActivity {
                                 TextInputEditText email = ((AlertDialog) dialog).findViewById(R.id.email);
                                 TextInputLayout passwordContainer = ((AlertDialog) dialog).findViewById(R.id.password_container);
                                 TextInputEditText password = ((AlertDialog) dialog).findViewById(R.id.password);
-                                if(!RegisterActivity.verifyEnteredEmail(emailContainer, email) || !RegisterActivity.verifyEnteredPass(passwordContainer, password)) return;
+                                if(!verifyEnteredEmail(emailContainer, email) || !verifyEnteredPass(passwordContainer, password)) return;
 
                                 loadingDialog = new MaterialAlertDialogBuilder(SettingsActivity.this)
                                         .setView(R.layout.login_dialog)

@@ -12,4 +12,12 @@
         android:icon="@drawable/ic_baseline_settings_24"
         android:title="Settings"
         app:showAsAction="ifRoom" />
+    <item
+        android:id="@+id/menu_increase_column"
+        android:title="Increase column"
+        app:showAsAction="never" />
+    <item
+        android:id="@+id/menu_decrease_column"
+        android:title="Decrease column"
+        app:showAsAction="never" />
 </menu>

@@ -12,30 +12,49 @@
     app:checkedIcon="@drawable/ic_baseline_check_circle_24"
     app:cardBackgroundColor="@color/cardview_background">
     <LinearLayout
-        android:orientation="vertical"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:padding="10dp">
+        android:orientation="vertical">
+        <androidx.appcompat.widget.AppCompatImageView
+            android:id="@+id/item_pin"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="@null" />
+        <LinearLayout
+            android:orientation="vertical"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:padding="10dp">
 
-        <com.google.android.material.textview.MaterialTextView
-            android:id="@+id/item_title"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:maxLines="2"
-            android:textSize="20sp"
-            android:text="title"
-            android:textStyle="bold"/>
-        <com.google.android.material.textview.MaterialTextView
-            android:id="@+id/item_description"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:maxLines="3"
-            android:textSize="15sp"
-            android:text="description"/>
-        <com.google.android.material.textview.MaterialTextView
-            android:id="@+id/item_docid"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:visibility="gone" />
+            <com.google.android.material.textview.MaterialTextView
+                android:id="@+id/item_title"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:maxLines="2"
+                android:textSize="20sp"
+                android:text="title"
+                android:textStyle="bold"/>
+            <com.google.android.material.textview.MaterialTextView
+                android:id="@+id/item_description"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:maxLines="3"
+                android:textSize="15sp"
+                android:text="description"/>
+            <com.google.android.material.textview.MaterialTextView
+                android:id="@+id/item_docid"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:visibility="gone" />
+            <androidx.appcompat.widget.AppCompatImageButton
+                android:id="@+id/item_favorite"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="right"
+                android:tag="false"
+                android:longClickable="false"
+                android:src="@drawable/ic_baseline_favorite_border_24"
+                android:background="@null" />
+        </LinearLayout>
     </LinearLayout>
 </com.google.android.material.card.MaterialCardView>

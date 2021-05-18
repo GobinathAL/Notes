@@ -8,5 +8,6 @@
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/items_gridview"
         android:layout_width="match_parent"
+        android:overScrollMode="never"
         android:layout_height="wrap_content"/>
 </FrameLayout>

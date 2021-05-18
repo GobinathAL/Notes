@@ -13,7 +13,16 @@
         <!-- Status bar color. -->
         <item name="android:statusBarColor" tools:targetApi="l">@color/black</item>
         <!-- Customize your theme here. -->
+        <item name="windowActionModeOverlay">true</item>
+        <item name="actionModeStyle">@style/Widget.App.ActionMode</item>
+        <item name="actionModeCloseDrawable">@drawable/ic_baseline_cancel_24</item>
+        <item name="tabStyle">@style/Widget.App.TabLayout</item>
     </style>
+
+    <style name="Theme.Notes.AppBarOverlay" parent="ThemeOverlay.MaterialComponents.Dark.ActionBar" />
+
+    <style name="Theme.Notes.PopupOverlay" parent="ThemeOverlay.MaterialComponents.Light" />
+
     <style name="Widget.Notes.Edittext" parent="Theme.MaterialComponents.DayNight.NoActionBar">
         <item name="backgroundColor">@color/dark_grey</item>
         <item name="android:textColor">@color/grey</item>
@@ -31,4 +40,14 @@
         <item name="colorOnPrimary">@color/white</item>
     </style>
 
+    <style name="Widget.App.TabLayout" parent="Widget.MaterialComponents.TabLayout">
+        <item name="materialThemeOverlay">@style/ThemeOverlay.App.TabLayout</item>
+        <item name="tabTextAppearance">@style/TextAppearance.MaterialComponents.Button</item>
+    </style>
+
+    <style name="ThemeOverlay.App.TabLayout" parent="">
+        <item name="colorPrimary">@color/purple_200</item>
+        <item name="colorSurface">@color/black</item>
+        <item name="colorOnSurface">@color/white</item>
+    </style>
 </resources>

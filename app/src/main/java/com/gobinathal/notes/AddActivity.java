@@ -99,10 +99,14 @@ public class AddActivity extends AppCompatActivity {
                 Map<String, Object> data = new HashMap<String, Object>();
                 data.put("title", title);
                 data.put("description", description);
-                if(bundle != null)
+                if(bundle != null) {
+                    data.put("isFavorite", bundle.getBoolean("isFavorite"));
                     db.collection(FirebaseAuth.getInstance().getUid()).document(docid).update(data);
-                else
+                }
+                else {
+                    data.put("isFavorite", false);
                     db.collection(FirebaseAuth.getInstance().getUid()).add(data);
+                }
                 setResult(RESULT_OK);
                 finish();
             }
