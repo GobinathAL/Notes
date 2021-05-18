@@ -12,9 +12,11 @@ import android.view.View;
 import android.view.ViewStub;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
+import android.widget.SearchView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.AppCompatImageView;
@@ -48,12 +50,9 @@ public class NotesActivity extends AppCompatActivity {
     private ViewStub stubGrid;
     private RecyclerView gvItems;
     private MaterialToolbar toolbar;
-    private MaterialCardView cardView;
-    private ImageButton favorite;
     private ArrayList<TodoItem> tasksArr = new ArrayList<TodoItem>(), currentNotes = new ArrayList<TodoItem>();
     public static ArrayList<MaterialCardView> cardArr = new ArrayList<MaterialCardView>();
     private FirebaseFirestore db;
-    private DocumentReference dRef;
     private CollectionReference cRef;
     private CustomGridAdapter gridAdapter;
     private ExtendedFloatingActionButton fab;
@@ -65,13 +64,14 @@ public class NotesActivity extends AppCompatActivity {
     private ActionMode mActionMode, currMode;
     private static int NO_OF_COLUMNS = 2;
     private  int SELECTED_COUNT;
+    private SharedPreferences sharedPreferences;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_notes);
 
         setPreferredTheme(this);
-        SharedPreferences sharedPreferences = getSharedPreferences("ThemePref", MODE_PRIVATE);
+        sharedPreferences = getSharedPreferences("ThemePref", MODE_PRIVATE);
         NO_OF_COLUMNS = sharedPreferences.getInt("ColumnCount", 0);
         NO_OF_COLUMNS = (NO_OF_COLUMNS == 0) ? 2 : NO_OF_COLUMNS;
 
@@ -132,7 +132,6 @@ public class NotesActivity extends AppCompatActivity {
         Log.i("NotesActivity", "inflated stub");
         gvItems = findViewById(R.id.items_gridview);
         db = FirebaseFirestore.getInstance();
-        cardView = findViewById(R.id.item_card_view);
         cRef = db.collection(FirebaseAuth.getInstance().getUid());
         gvItems.setLayoutManager(new GridLayoutManager(NotesActivity.this, NO_OF_COLUMNS));
         gvItems.addItemDecoration(new SpaceItemDecoration(48, 24));
@@ -167,8 +166,6 @@ public class NotesActivity extends AppCompatActivity {
                         currentNotes.clear();
                         currentNotes.addAll(tasksArr);
                         gvItems.setAdapter(gridAdapter);
-//                        CharSequence searchTerm = searchField.getText().toString();
-//                        startSearch(searchTerm, searchTerm.length());
                     }
                 }
             }
@@ -176,37 +173,7 @@ public class NotesActivity extends AppCompatActivity {
 
         toolbar = findViewById(R.id.top_toolbar);
         setSupportActionBar(toolbar);
-        toolbar.setOnMenuItemClickListener(new Toolbar.OnMenuItemClickListener() {
-            @Override
-            public boolean onMenuItemClick(MenuItem item) {
-                switch (item.getItemId()) {
-                    case R.id.settings:
-                        startActivityForResult(new Intent(NotesActivity.this, SettingsActivity.class), 3);
-                        return true;
-                    case R.id.search:
 
-                        return true;
-                    case R.id.menu_increase_column:
-                        if(NO_OF_COLUMNS == 10) {
-                            Toast.makeText(getApplicationContext(), "Columns cannot exceed 10", Toast.LENGTH_SHORT).show();
-                            return true;
-                        }
-                        gvItems.setLayoutManager(new GridLayoutManager(NotesActivity.this, ++NO_OF_COLUMNS));
-                        sharedPreferences.edit().putInt("ColumnCount", NO_OF_COLUMNS).apply();
-                        return true;
-                    case R.id.menu_decrease_column:
-                        if(NO_OF_COLUMNS == 1) {
-                            Toast.makeText(getApplicationContext(), "Columns cannot be 0", Toast.LENGTH_SHORT).show();
-                            return true;
-                        }
-                        gvItems.setLayoutManager(new GridLayoutManager(NotesActivity.this, --NO_OF_COLUMNS));
-                        sharedPreferences.edit().putInt("ColumnCount", NO_OF_COLUMNS).apply();
-                        return true;
-                    default:
-                        return false;
-                }
-            }
-        });
         // Go to AddActivity when fab is clicked
         fab = findViewById(R.id.fab);
         fab.setOnClickListener(new View.OnClickListener() {
@@ -229,25 +196,6 @@ public class NotesActivity extends AppCompatActivity {
 //            startSearch(s, s.length());
         }
         super.onActivityResult(requestCode, resultCode, data);
-    }
-
-    private void startSearch(CharSequence s, int count) {
-        if(s == null) return;
-        String searchText = s.toString().toLowerCase();
-        tasksArr.clear();
-        tasksArr.addAll(currentNotes);
-        if(count == 0 && tasksArr != null) {
-            gridAdapter.notifyDataSetChanged();
-            return;
-        }
-        ArrayList<TodoItem> hideList = new ArrayList<TodoItem>();
-        for(TodoItem t : currentNotes) {
-            if(!t.getTitle().toLowerCase().contains(searchText) && !t.getDescription().toLowerCase().contains(searchText)) {
-                hideList.add(t);
-            }
-        }
-        tasksArr.removeAll(hideList);
-        gridAdapter.notifyDataSetChanged();
     }
 
     private ActionMode.Callback mActionModeCallback = new ActionMode.Callback() {
@@ -404,6 +352,51 @@ public class NotesActivity extends AppCompatActivity {
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.top_app_bar, menu);
+
+        MenuItem.OnActionExpandListener onActionExpandListener = new MenuItem.OnActionExpandListener() {
+            @Override
+            public boolean onMenuItemActionExpand(MenuItem item) {
+                return true;
+            }
+
+            @Override
+            public boolean onMenuItemActionCollapse(MenuItem item) {
+                return true;
+            }
+        };
+        menu.findItem(R.id.search).setOnActionExpandListener(onActionExpandListener);
+        SearchView searchView = (SearchView) menu.findItem(R.id.search).getActionView();
+        searchView.setQueryHint("Search");
         return super.onCreateOptionsMenu(menu);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
+        switch (item.getItemId()) {
+            case R.id.settings:
+                startActivityForResult(new Intent(NotesActivity.this, SettingsActivity.class), 3);
+                return true;
+            case R.id.search:
+
+                return true;
+            case R.id.menu_increase_column:
+                if(NO_OF_COLUMNS == 10) {
+                    Toast.makeText(getApplicationContext(), "Columns cannot exceed 10", Toast.LENGTH_SHORT).show();
+                    return true;
+                }
+                gvItems.setLayoutManager(new GridLayoutManager(NotesActivity.this, ++NO_OF_COLUMNS));
+                sharedPreferences.edit().putInt("ColumnCount", NO_OF_COLUMNS).apply();
+                return true;
+            case R.id.menu_decrease_column:
+                if(NO_OF_COLUMNS == 1) {
+                    Toast.makeText(getApplicationContext(), "Columns cannot be 0", Toast.LENGTH_SHORT).show();
+                    return true;
+                }
+                gvItems.setLayoutManager(new GridLayoutManager(NotesActivity.this, --NO_OF_COLUMNS));
+                sharedPreferences.edit().putInt("ColumnCount", NO_OF_COLUMNS).apply();
+                return true;
+            default:
+                return super.onOptionsItemSelected(item);
+        }
     }
 }
