@@ -29,18 +29,6 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent">
 
-            <com.google.android.material.textfield.TextInputEditText
-                android:id="@+id/search"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="30dp"
-                android:layout_marginBottom="30dp"
-                android:layout_marginLeft="10dp"
-                android:layout_marginRight="10dp"
-                android:hint="Search here"
-                android:background="@drawable/edittext"
-                android:drawableStart="@drawable/ic_baseline_search_24"
-                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox" />
             <ViewStub
                 android:id="@+id/stub_grid"
                 android:layout="@layout/items_gridview"
@@ -50,9 +38,9 @@
                 android:layout_margin="10dp"
                 android:inflatedId="@+id/showLayout" />
 
-
         </RelativeLayout>
     </androidx.core.widget.NestedScrollView>
+
     <com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton
         android:id="@+id/fab"
         android:layout_width="wrap_content"
