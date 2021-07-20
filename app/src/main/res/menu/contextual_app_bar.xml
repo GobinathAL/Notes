@@ -6,12 +6,12 @@
         android:id="@+id/menu_pin"
         android:icon="@drawable/ic_baseline_push_pin_24"
         android:title="Pin"
-        app:showAsAction="ifRoom" />
+        app:showAsAction="always" />
     <item
         android:id="@+id/menu_delete"
         android:icon="@drawable/ic_baseline_delete_outline_24"
         android:title="Delete"
-        app:showAsAction="ifRoom" />
+        app:showAsAction="always" />
     <item
         android:id="@+id/menu_share"
         android:icon="@drawable/ic_baseline_share_24"
