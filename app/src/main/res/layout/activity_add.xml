@@ -18,7 +18,7 @@
             android:layout_height="?actionBarSize"
             app:menu="@menu/edit_add_app_bar"
             app:layout_scrollFlags="scroll|enterAlways|snap"
-            style="@style/Widget.App.Toolbar" />
+            style="@style/Widget.App.Toolbar"/>
     </com.google.android.material.appbar.AppBarLayout>
 
     <androidx.core.widget.NestedScrollView
@@ -50,7 +50,6 @@
                 android:background="@color/material_on_primary_disabled"
                 android:hint="Enter description here"
                 android:cursorVisible="true">
-                <requestFocus/>
             </com.google.android.material.textfield.TextInputEditText>
         </LinearLayout>
     </androidx.core.widget.NestedScrollView>
@@ -63,5 +62,6 @@
         android:contentDescription="delete icon"
         android:layout_gravity="bottom|right"
         android:visibility="gone"
-        android:src="@drawable/ic_baseline_delete_outline_24" />
+        android:src="@drawable/ic_baseline_delete_outline_24"
+        android:transitionName="fab_transition" />
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

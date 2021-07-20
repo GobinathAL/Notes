@@ -54,7 +54,7 @@
                 android:tag="false"
                 android:longClickable="false"
                 android:src="@drawable/ic_baseline_favorite_border_24"
-                android:background="@null" />
+                android:background="@null"/>
         </LinearLayout>
     </LinearLayout>
 </com.google.android.material.card.MaterialCardView>

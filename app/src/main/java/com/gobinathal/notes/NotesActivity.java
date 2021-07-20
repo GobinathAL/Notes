@@ -1,10 +1,12 @@
 package com.gobinathal.notes;
 
+import android.app.ActivityOptions;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.util.Log;
+import android.util.Pair;
 import android.view.ActionMode;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -83,6 +85,7 @@ public class NotesActivity extends AppCompatActivity {
             public void onClick(View v) {
                 if(mActionMode == null) {
                     Intent intent = new Intent(NotesActivity.this, AddActivity.class);
+                    MaterialCardView cv = (MaterialCardView) v;
                     String title = ((TextView) v.findViewById(R.id.item_title)).getText().toString();
                     String description = ((TextView) v.findViewById(R.id.item_description)).getText().toString();
                     String docid = ((TextView) v.findViewById(R.id.item_docid)).getText().toString();
@@ -95,7 +98,8 @@ public class NotesActivity extends AppCompatActivity {
                     intent.putExtra("isFavorite", (boolean) b.getTag());
                     intent.putExtra("isPinned", (boolean) pin.getTag());
                     Log.i("NotesActivity", title + " " + description + " " + docid);
-                    startActivityForResult(intent, EDIT_OR_DISCARD);
+                    ActivityOptions options = ActivityOptions.makeSceneTransitionAnimation(NotesActivity.this, fab, "fab_transition");
+                    startActivityForResult(intent, EDIT_OR_DISCARD, options.toBundle());
                 }
                 else {
                     MaterialCardView cv = (MaterialCardView) v;
