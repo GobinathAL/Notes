@@ -17,6 +17,7 @@
             android:layout_height="?actionBarSize"
             app:title="Your Notes"
             app:menu="@menu/top_app_bar"
+            android:animateLayoutChanges="true"
             app:layout_scrollFlags="scroll|enterAlways|snap"
             style="@style/Widget.App.Toolbar" />
     </com.google.android.material.appbar.AppBarLayout>
