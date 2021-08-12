@@ -24,7 +24,7 @@ public class RegisterActivity extends AppCompatActivity {
 
     private TextInputEditText email, password, confirmPassword;
     private TextInputLayout emailContainer, passwordContainer, confirmPasswordContainer;
-    private MaterialTextView registerHeader, goToLogin;
+    private MaterialTextView registerHeader, goToLogin, registerHelperText;
     private MaterialButton registerButton;
     private FirebaseAuth auth;
     @Override
@@ -35,6 +35,8 @@ public class RegisterActivity extends AppCompatActivity {
         auth = FirebaseAuth.getInstance();
         registerHeader = findViewById(R.id.login_register_header);
         registerHeader.setText("Register");
+        registerHelperText = findViewById(R.id.login_helper_text);
+        registerHelperText.setText("Enter credentials for your new account");
         findViewById(R.id.forgot_password).setVisibility(View.GONE);
         goToLogin = findViewById(R.id.register_prompt);
         emailContainer = findViewById(R.id.email_container);
