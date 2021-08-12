@@ -109,7 +109,8 @@ public class NotesActivity extends AppCompatActivity {
                     MaterialCardView cv = (MaterialCardView) v;
                     cv.setChecked(!cv.isChecked());
                     updateSelectedNotesCount();
-                    currMode.invalidate();
+                    if(SELECTED_COUNT == 0) currMode.finish();
+                    else currMode.invalidate();
                 }
             }
         };
@@ -276,6 +277,7 @@ public class NotesActivity extends AppCompatActivity {
                         cv.setChecked(true);
                     int n = cardArr.size();
                     currMode.setTitle(n + "/" + n + " selected");
+                    item.setVisible(false);
                     return true;
                 case R.id.menu_unselect_all:
                     mode.finish();
@@ -306,6 +308,9 @@ public class NotesActivity extends AppCompatActivity {
             if(cv.isChecked()) count++;
         }
         SELECTED_COUNT = count;
+        MenuItem m = currMode.getMenu().findItem(R.id.menu_select_all);
+        if(SELECTED_COUNT == cardArr.size()) m.setVisible(false);
+        else m.setVisible(true);
         currMode.setTitle(count + "/" + cardArr.size() + " selected");
     }
 
