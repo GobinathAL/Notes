@@ -50,7 +50,7 @@
         android:layout_marginRight="10dp"
         android:text="Add a note"
         app:icon="@drawable/ic_baseline_add_24"
+        android:transitionName="fab_transition"
         app:rippleColor="@color/design_default_color_secondary_variant"
-        android:layout_gravity="bottom|right"
-        android:transitionName="fab_transition"/>
+        android:layout_gravity="bottom|right"/>
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

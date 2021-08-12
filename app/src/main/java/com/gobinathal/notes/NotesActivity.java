@@ -23,6 +23,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.AppCompatImageView;
 import androidx.appcompat.widget.SearchView;
 import androidx.appcompat.widget.Toolbar;
+import androidx.core.app.ActivityOptionsCompat;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -98,7 +99,10 @@ public class NotesActivity extends AppCompatActivity {
                     intent.putExtra("isFavorite", (boolean) b.getTag());
                     intent.putExtra("isPinned", (boolean) pin.getTag());
                     Log.i("NotesActivity", title + " " + description + " " + docid);
-                    ActivityOptions options = ActivityOptions.makeSceneTransitionAnimation(NotesActivity.this, fab, "fab_transition");
+                    Pair<View, String>[] pairs = new Pair[2];
+                    Pair<View, String> p1 = Pair.create(cv, "note_grow_transition");
+                    Pair<View, String> p2 = Pair.create(fab, "fab_transition");
+                    ActivityOptions options = ActivityOptions.makeSceneTransitionAnimation(NotesActivity.this, p1, p2);
                     startActivityForResult(intent, EDIT_OR_DISCARD, options.toBundle());
                 }
                 else {
