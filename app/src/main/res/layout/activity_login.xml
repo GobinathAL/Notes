@@ -12,6 +12,13 @@
         android:orientation="vertical"
         android:padding="20dp">
 
+        <com.google.android.material.imageview.ShapeableImageView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:src="@mipmap/ic_launcher"
+            app:shapeAppearanceOverlay="@style/roundedImageViewRounded"
+            android:layout_gravity="center_horizontal" />
+
         <com.google.android.material.textview.MaterialTextView
             android:id="@+id/login_register_header"
             android:layout_width="wrap_content"
@@ -38,7 +45,8 @@
             android:hint="Confirm password"
             android:visibility="gone"
             app:errorEnabled="true"
-            app:endIconMode="custom"
+            app:endIconMode="password_toggle"
+            app:startIconDrawable="@drawable/ic_baseline_lock_24"
             style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox">
             <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/confirm_password"
@@ -46,11 +54,7 @@
                 android:layout_height="wrap_content"
                 android:inputType="textPassword"/>
         </com.google.android.material.textfield.TextInputLayout>
-        <com.google.android.material.checkbox.MaterialCheckBox
-            android:id="@+id/show_password"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Show Password" />
+
         <com.google.android.material.button.MaterialButton
             android:id="@+id/button"
             android:layout_width="match_parent"

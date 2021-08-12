@@ -32,7 +32,6 @@ public class LoginActivity extends AppCompatActivity {
     private TextInputLayout emailContainer, passwordContainer;
     private TextInputEditText email, password;
     private MaterialButton loginButton;
-    private MaterialCheckBox showPassword;
     private MaterialTextView goToRegsitration, forgotPassword;
     private FirebaseAuth auth;
     AlertDialog dialog;
@@ -50,24 +49,10 @@ public class LoginActivity extends AppCompatActivity {
         passwordContainer = findViewById(R.id.password_container);
         password = findViewById(R.id.password);
         loginButton = findViewById(R.id.button);
-        showPassword = findViewById(R.id.show_password);
         goToRegsitration = findViewById(R.id.register_prompt);
         forgotPassword = findViewById(R.id.forgot_password);
 
         checkEmailOnFocusChanged(emailContainer, email);
-
-        showPassword.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                if(showPassword.isChecked()) {
-                    password.setTransformationMethod(null);
-                }
-                else {
-                    password.setTransformationMethod(new PasswordTransformationMethod());
-                }
-                password.setSelection(password.getText().length());
-            }
-        });
 
         goToRegsitration.setOnClickListener(new View.OnClickListener() {
             @Override

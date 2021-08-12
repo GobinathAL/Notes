@@ -24,7 +24,6 @@ public class RegisterActivity extends AppCompatActivity {
 
     private TextInputEditText email, password, confirmPassword;
     private TextInputLayout emailContainer, passwordContainer, confirmPasswordContainer;
-    private MaterialCheckBox showPassword;
     private MaterialTextView registerHeader, goToLogin;
     private MaterialButton registerButton;
     private FirebaseAuth auth;
@@ -45,7 +44,6 @@ public class RegisterActivity extends AppCompatActivity {
         confirmPassword = findViewById(R.id.confirm_password);
         confirmPasswordContainer = findViewById(R.id.confirm_password_container);
         registerButton = findViewById(R.id.button);
-        showPassword = findViewById(R.id.show_password);
 
         goToLogin.setText("Existing user? Click here to login");
         goToLogin.setOnClickListener(new View.OnClickListener() {
@@ -58,13 +56,6 @@ public class RegisterActivity extends AppCompatActivity {
 
         confirmPasswordContainer.setVisibility(View.VISIBLE);
         registerButton.setText("Register");
-
-        showPassword.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                showOrHidePassword(showPassword, password, confirmPassword);
-            }
-        });
 
         checkEmailOnFocusChanged(emailContainer, email);
 
