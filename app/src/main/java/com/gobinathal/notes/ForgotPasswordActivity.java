@@ -8,11 +8,9 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.gobinathal.notes.databinding.ActivityForgotPasswordBinding;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
-import com.google.android.material.button.MaterialButton;
-import com.google.android.material.textfield.TextInputEditText;
-import com.google.android.material.textfield.TextInputLayout;
 import com.google.firebase.auth.FirebaseAuth;
 
 import static com.gobinathal.notes.Utils.SignIn.checkEmailOnFocusChanged;
@@ -20,25 +18,20 @@ import static com.gobinathal.notes.Utils.SignIn.verifyEnteredEmail;
 
 public class ForgotPasswordActivity extends AppCompatActivity {
 
-    private MaterialButton resetPasswordButton;
-    private TextInputEditText forgotPasswordEmailInput;
-    private TextInputLayout forgotPasswordEmailInputContainer;
+    private ActivityForgotPasswordBinding binding;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_forgot_password);
+        binding = ActivityForgotPasswordBinding.inflate(getLayoutInflater());
+        setContentView(binding.getRoot());
 
-        forgotPasswordEmailInputContainer = findViewById(R.id.forgot_password_email_input_container);
-        forgotPasswordEmailInput = findViewById(R.id.forgot_password_email_input);
-        resetPasswordButton = findViewById(R.id.reset_password_button);
+        checkEmailOnFocusChanged(binding.forgotPasswordEmailInputContainer, binding.forgotPasswordEmailInput);
 
-        checkEmailOnFocusChanged(forgotPasswordEmailInputContainer, forgotPasswordEmailInput);
-
-        resetPasswordButton.setOnClickListener(new View.OnClickListener() {
+        binding.resetPasswordButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                if(!verifyEnteredEmail(forgotPasswordEmailInputContainer, forgotPasswordEmailInput)) return;
-                String email = forgotPasswordEmailInput.getText().toString();
+                if(!verifyEnteredEmail(binding.forgotPasswordEmailInputContainer, binding.forgotPasswordEmailInput)) return;
+                String email = binding.forgotPasswordEmailInput.getText().toString();
                 FirebaseAuth.getInstance().sendPasswordResetEmail(email)
                         .addOnCompleteListener(new OnCompleteListener<Void>() {
                             @Override
