@@ -7,11 +7,10 @@ import android.view.View;
 
 import androidx.appcompat.app.AppCompatActivity;
 
-import com.google.android.material.button.MaterialButton;
+import com.gobinathal.notes.databinding.ActivityLoginBinding;
+import com.gobinathal.notes.databinding.CredentialsBinding;
 import com.google.android.material.checkbox.MaterialCheckBox;
 import com.google.android.material.textfield.TextInputEditText;
-import com.google.android.material.textfield.TextInputLayout;
-import com.google.android.material.textview.MaterialTextView;
 import com.google.firebase.auth.FirebaseAuth;
 
 import static com.gobinathal.notes.Utils.SignIn.checkEmailOnFocusChanged;
@@ -22,33 +21,23 @@ import static com.gobinathal.notes.Utils.SignIn.verifyEnteredPass;
 
 public class RegisterActivity extends AppCompatActivity {
 
-    private TextInputEditText email, password, confirmPassword;
-    private TextInputLayout emailContainer, passwordContainer, confirmPasswordContainer;
-    private MaterialTextView registerHeader, goToLogin, registerHelperText;
-    private MaterialButton registerButton;
+    private ActivityLoginBinding binding;
+    private CredentialsBinding credentialsBinding;
     private FirebaseAuth auth;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_login);
+        binding = ActivityLoginBinding.inflate(getLayoutInflater());
+        credentialsBinding = CredentialsBinding.bind(binding.getRoot());
+        setContentView(binding.getRoot());
 
         auth = FirebaseAuth.getInstance();
-        registerHeader = findViewById(R.id.login_register_header);
-        registerHeader.setText("Register");
-        registerHelperText = findViewById(R.id.login_helper_text);
-        registerHelperText.setText("Enter credentials for your new account");
+        binding.loginRegisterHeader.setText("Register");
+        binding.loginHelperText.setText("Enter credentials for your new account");
         findViewById(R.id.forgot_password).setVisibility(View.GONE);
-        goToLogin = findViewById(R.id.register_prompt);
-        emailContainer = findViewById(R.id.email_container);
-        email = findViewById(R.id.email);
-        passwordContainer = findViewById(R.id.password_container);
-        password = findViewById(R.id.password);
-        confirmPassword = findViewById(R.id.confirm_password);
-        confirmPasswordContainer = findViewById(R.id.confirm_password_container);
-        registerButton = findViewById(R.id.button);
 
-        goToLogin.setText("Existing user? Click here to login");
-        goToLogin.setOnClickListener(new View.OnClickListener() {
+        binding.registerPrompt.setText("Existing user? Click here to login");
+        binding.registerPrompt.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 startActivity(new Intent(RegisterActivity.this, LoginActivity.class));
@@ -56,20 +45,20 @@ public class RegisterActivity extends AppCompatActivity {
             }
         });
 
-        confirmPasswordContainer.setVisibility(View.VISIBLE);
-        registerButton.setText("Register");
+        binding.confirmPasswordContainer.setVisibility(View.VISIBLE);
+        binding.button.setText("Register");
 
-        checkEmailOnFocusChanged(emailContainer, email);
+        checkEmailOnFocusChanged(credentialsBinding.emailContainer, credentialsBinding.email);
 
-        registerButton.setOnClickListener(new View.OnClickListener() {
+        binding.button.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                boolean b1 = verifyEnteredEmail(emailContainer, email);
-                boolean b2 = verifyEnteredPass(passwordContainer, password);
-                boolean b3 = verifyEnteredConfirmPass(confirmPasswordContainer, confirmPassword, password);
+                boolean b1 = verifyEnteredEmail(credentialsBinding.emailContainer, credentialsBinding.email);
+                boolean b2 = verifyEnteredPass(credentialsBinding.passwordContainer, credentialsBinding.password);
+                boolean b3 = verifyEnteredConfirmPass(binding.confirmPasswordContainer, binding.confirmPassword, credentialsBinding.password);
                 if(b1 && b2 && b3) {
-                    String txt_email = email.getText().toString();
-                    String txt_password = password.getText().toString();
+                    String txt_email = credentialsBinding.email.getText().toString();
+                    String txt_password = credentialsBinding.password.getText().toString();
                     registerUser(RegisterActivity.this, auth, txt_email, txt_password);
                 }
             }
