@@ -8,17 +8,13 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.ImageButton;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
-import com.google.android.material.appbar.MaterialToolbar;
-import com.google.android.material.button.MaterialButton;
+import com.gobinathal.notes.databinding.ActivityAddBinding;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
-import com.google.android.material.floatingactionbutton.FloatingActionButton;
-import com.google.android.material.textfield.TextInputEditText;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.FirebaseFirestore;
 
@@ -26,35 +22,29 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class AddActivity extends AppCompatActivity {
-
-    private MaterialToolbar toolbar;
-    private TextInputEditText inputTitle, inputDescription;
+    
+    private ActivityAddBinding binding;
+    private Bundle bundle;
     private FirebaseFirestore db;
     private String docid;
-    private Bundle bundle;
-    private FloatingActionButton deleteFab;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_add);
-
-        toolbar = findViewById(R.id.add_top_toolbar);
-        toolbar.setTitle(null);
-        setSupportActionBar(toolbar);
+        binding = ActivityAddBinding.inflate(getLayoutInflater());
+        setContentView(binding.getRoot());
+        
+        binding.addTopToolbar.setTitle(null);
+        setSupportActionBar(binding.addTopToolbar);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         bundle = getIntent().getExtras();
         db = FirebaseFirestore.getInstance();
-        inputTitle = findViewById(R.id.input_title);
-        inputDescription = findViewById(R.id.input_description);
-        deleteFab = null;
         if(bundle != null) {
             docid = bundle.getString("docid");
-            inputTitle.setText(bundle.getString("title"));
-            inputDescription.setText(bundle.getString("description"));
-            deleteFab = findViewById(R.id.delete_fab);
-            deleteFab.setVisibility(View.VISIBLE);
+            binding.inputTitle.setText(bundle.getString("title"));
+            binding.inputDescription.setText(bundle.getString("description"));
+            binding.deleteFab.setVisibility(View.VISIBLE);
         }
-        inputTitle.addTextChangedListener(new TextWatcher() {
+        binding.inputTitle.addTextChangedListener(new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence s, int start, int count, int after) {
 
@@ -62,8 +52,8 @@ public class AddActivity extends AppCompatActivity {
 
             @Override
             public void onTextChanged(CharSequence s, int start, int before, int count) {
-                MenuItem save = toolbar.getMenu().findItem(R.id.add_menu_save);
-                if(count == 0 && inputDescription.getText().toString().isEmpty())
+                MenuItem save = binding.addTopToolbar.getMenu().findItem(R.id.add_menu_save);
+                if(count == 0 && binding.inputDescription.getText().toString().isEmpty())
                     save.setVisible(false);
                 else
                     save.setVisible(true);
@@ -74,7 +64,7 @@ public class AddActivity extends AppCompatActivity {
 
             }
         });
-        inputDescription.addTextChangedListener(new TextWatcher() {
+        binding.inputDescription.addTextChangedListener(new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence s, int start, int count, int after) {
 
@@ -82,8 +72,8 @@ public class AddActivity extends AppCompatActivity {
 
             @Override
             public void onTextChanged(CharSequence s, int start, int before, int count) {
-                MenuItem save = toolbar.getMenu().findItem(R.id.add_menu_save);
-                if(count == 0 && inputTitle.getText().toString().isEmpty())
+                MenuItem save = binding.addTopToolbar.getMenu().findItem(R.id.add_menu_save);
+                if(count == 0 && binding.inputTitle.getText().toString().isEmpty())
                     save.setVisible(false);
                 else
                     save.setVisible(true);
@@ -95,8 +85,8 @@ public class AddActivity extends AppCompatActivity {
             }
         });
 
-        if(deleteFab == null) return;
-        deleteFab.setOnClickListener(new View.OnClickListener() {
+        if(binding.deleteFab == null) return;
+        binding.deleteFab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 new MaterialAlertDialogBuilder(AddActivity.this)
@@ -174,7 +164,7 @@ public class AddActivity extends AppCompatActivity {
                     item.setIcon(R.drawable.ic_baseline_favorite_24);
                     item.setContentDescription("true");
                 }
-                toolbar.getMenu().findItem(R.id.add_menu_save).setVisible(true);
+                binding.addTopToolbar.getMenu().findItem(R.id.add_menu_save).setVisible(true);
                 return true;
             case R.id.add_menu_pin:
                 if(item.getContentDescription().toString().equals("true")) {
@@ -185,13 +175,13 @@ public class AddActivity extends AppCompatActivity {
                     item.setIcon(R.drawable.ic_unpin);
                     item.setContentDescription("true");
                 }
-                toolbar.getMenu().findItem(R.id.add_menu_save).setVisible(true);
+                binding.addTopToolbar.getMenu().findItem(R.id.add_menu_save).setVisible(true);
                 return true;
             case R.id.add_menu_save:
-                String title = inputTitle.getText().toString();
-                String description = inputDescription.getText().toString();
-                boolean isFavorite = toolbar.getMenu().findItem(R.id.add_menu_favorite).getContentDescription().toString().equals("true");
-                boolean isPinned = toolbar.getMenu().findItem(R.id.add_menu_pin).getContentDescription().toString().equals("true");
+                String title = binding.inputTitle.getText().toString();
+                String description = binding.inputDescription.getText().toString();
+                boolean isFavorite = binding.addTopToolbar.getMenu().findItem(R.id.add_menu_favorite).getContentDescription().toString().equals("true");
+                boolean isPinned = binding.addTopToolbar.getMenu().findItem(R.id.add_menu_pin).getContentDescription().toString().equals("true");
                 Map<String, Object> data = new HashMap<String, Object>();
                 data.put("title", title);
                 data.put("description", description);
