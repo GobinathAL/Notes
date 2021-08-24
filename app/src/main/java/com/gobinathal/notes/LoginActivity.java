@@ -2,7 +2,6 @@ package com.gobinathal.notes;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.text.method.PasswordTransformationMethod;
 import android.view.View;
 import android.widget.Toast;
 
@@ -11,15 +10,12 @@ import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.gobinathal.notes.databinding.ActivityLoginBinding;
+import com.gobinathal.notes.databinding.CredentialsBinding;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
-import com.google.android.material.button.MaterialButton;
-import com.google.android.material.checkbox.MaterialCheckBox;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.snackbar.Snackbar;
-import com.google.android.material.textfield.TextInputEditText;
-import com.google.android.material.textfield.TextInputLayout;
-import com.google.android.material.textview.MaterialTextView;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
@@ -29,32 +25,25 @@ import static com.gobinathal.notes.Utils.SignIn.verifyEnteredEmail;
 import static com.gobinathal.notes.Utils.SignIn.verifyEnteredPass;
 
 public class LoginActivity extends AppCompatActivity {
-    private TextInputLayout emailContainer, passwordContainer;
-    private TextInputEditText email, password;
-    private MaterialButton loginButton;
-    private MaterialTextView goToRegsitration, forgotPassword;
     private FirebaseAuth auth;
+    private ActivityLoginBinding binding;
+    private CredentialsBinding credentialsBinding;
     AlertDialog dialog;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         if(FirebaseAuth.getInstance().getCurrentUser() != null) {
-            startActivity(new Intent(LoginActivity.this, NotesActivity.class));
+            startActivity(new Intent(
+LoginActivity.this, NotesActivity.class));
             finish();
         }
-        setContentView(R.layout.activity_login);
+        binding = ActivityLoginBinding.inflate(getLayoutInflater());
+        credentialsBinding = CredentialsBinding.bind(binding.getRoot());
+        setContentView(binding.getRoot());
 
-        emailContainer = findViewById(R.id.email_container);
-        email = findViewById(R.id.email);
-        passwordContainer = findViewById(R.id.password_container);
-        password = findViewById(R.id.password);
-        loginButton = findViewById(R.id.button);
-        goToRegsitration = findViewById(R.id.register_prompt);
-        forgotPassword = findViewById(R.id.forgot_password);
+        checkEmailOnFocusChanged(credentialsBinding.emailContainer, credentialsBinding.email);
 
-        checkEmailOnFocusChanged(emailContainer, email);
-
-        goToRegsitration.setOnClickListener(new View.OnClickListener() {
+        binding.registerPrompt.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 startActivity(new Intent(getApplicationContext(), RegisterActivity.class));
@@ -64,19 +53,19 @@ public class LoginActivity extends AppCompatActivity {
 
         auth = FirebaseAuth.getInstance();
 
-        forgotPassword.setOnClickListener(new View.OnClickListener() {
+        binding.forgotPassword.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 startActivityForResult(new Intent(LoginActivity.this, ForgotPasswordActivity.class), 2);
             }
         });
 
-        loginButton.setOnClickListener(new View.OnClickListener() {
+        binding.button.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if(!verifyEnteredEmail(emailContainer, email) || !verifyEnteredPass(passwordContainer, password)) return;
-                String txt_email = email.getText().toString();
-                String txt_password = password.getText().toString();
+                if(!verifyEnteredEmail(credentialsBinding.emailContainer, credentialsBinding.email) || !verifyEnteredPass(credentialsBinding.passwordContainer, credentialsBinding.password)) return;
+                String txt_email = credentialsBinding.email.getText().toString();
+                String txt_password = credentialsBinding.password.getText().toString();
                 loginUser(txt_email, txt_password);
             }
         });
@@ -122,6 +111,7 @@ public class LoginActivity extends AppCompatActivity {
             Snackbar.make(findViewById(R.id.loginParentLayout), "Verify your email to login!", Snackbar.LENGTH_LONG).show();
         }
     }
+
     @Override
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
