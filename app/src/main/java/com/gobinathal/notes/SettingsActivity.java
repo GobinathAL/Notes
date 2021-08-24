@@ -6,6 +6,7 @@ import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageButton;
@@ -17,6 +18,9 @@ import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.app.AppCompatDelegate;
 
+import com.gobinathal.notes.databinding.ActivitySettingsBinding;
+import com.gobinathal.notes.databinding.ConfirmCredentialsDialogBinding;
+import com.gobinathal.notes.databinding.CredentialsBinding;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.android.material.button.MaterialButton;
@@ -34,45 +38,32 @@ import static com.gobinathal.notes.Utils.SignIn.verifyEnteredPass;
 
 public class SettingsActivity extends AppCompatActivity {
 
-    private ImageButton goBack, twitter;
-    private RadioGroup radioGroup;
-    private MaterialButton logout, delete;
+    private ActivitySettingsBinding binding;
     private SharedPreferences sharedPreferences;
     private AlertDialog deleteDialog, loadingDialog;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_settings);
+        binding = ActivitySettingsBinding.inflate(getLayoutInflater());
+        setContentView(binding.getRoot());
 
         sharedPreferences = getSharedPreferences("ThemePref", MODE_PRIVATE);
         int theme = sharedPreferences.getInt("Theme", 0);
-        if(theme == 0) {
-            MaterialRadioButton b = findViewById(R.id.system_default);
-            b.setChecked(true);
-        }
-        else if(theme == 1) {
-            MaterialRadioButton b = findViewById(R.id.light_theme);
-            b.setChecked(true);
-        }
-        else if(theme == 2) {
-            MaterialRadioButton b = findViewById(R.id.dark_theme);
-            b.setChecked(true);
-        }
+        if(theme == 0)
+            binding.systemDefault.setChecked(true);
+        else if(theme == 1)
+            binding.lightTheme.setChecked(true);
+        else if(theme == 2)
+            binding.darkTheme.setChecked(true);
 
-        goBack = findViewById(R.id.go_back_from_settings);
-        radioGroup = findViewById(R.id.radio_group);
-        twitter = findViewById(R.id.twitter);
-        logout = findViewById(R.id.logout);
-        delete = findViewById(R.id.delete);
-
-        goBack.setOnClickListener(new View.OnClickListener() {
+        binding.goBackFromSettings.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 finish();
             }
         });
 
-        radioGroup.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
+        binding.radioGroup.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(RadioGroup group, int checkedId) {
                 if(checkedId == R.id.system_default) {
@@ -96,7 +87,7 @@ public class SettingsActivity extends AppCompatActivity {
             }
         });
 
-        twitter.setOnClickListener(new View.OnClickListener() {
+        binding.twitter.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse("https://www.twitter.com/gobinathal"));
@@ -104,7 +95,7 @@ public class SettingsActivity extends AppCompatActivity {
             }
         });
 
-        logout.setOnClickListener(new View.OnClickListener() {
+        binding.logout.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 FirebaseAuth.getInstance().signOut();
@@ -116,11 +107,13 @@ public class SettingsActivity extends AppCompatActivity {
             }
         });
 
-        delete.setOnClickListener(new View.OnClickListener() {
+        binding.delete.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                ConfirmCredentialsDialogBinding ccBinding = ConfirmCredentialsDialogBinding.inflate(LayoutInflater.from(SettingsActivity.this));
+                CredentialsBinding credentialsBinding = CredentialsBinding.bind(ccBinding.getRoot());
                 deleteDialog = new MaterialAlertDialogBuilder(SettingsActivity.this)
-                        .setView(R.layout.confirm_credentials_dialog)
+                        .setView(ccBinding.getRoot())
                         .setTitle("Confirm Delete")
                         .setCancelable(false)
                         .setPositiveButton("Delete", null)
@@ -135,10 +128,10 @@ public class SettingsActivity extends AppCompatActivity {
                         positiveButton.setOnClickListener(new View.OnClickListener() {
                             @Override
                             public void onClick(View v) {
-                                TextInputLayout emailContainer = ((AlertDialog) dialog).findViewById(R.id.email_container);
-                                TextInputEditText email = ((AlertDialog) dialog).findViewById(R.id.email);
-                                TextInputLayout passwordContainer = ((AlertDialog) dialog).findViewById(R.id.password_container);
-                                TextInputEditText password = ((AlertDialog) dialog).findViewById(R.id.password);
+                                TextInputLayout emailContainer = credentialsBinding.emailContainer;
+                                TextInputEditText email = credentialsBinding.email;
+                                TextInputLayout passwordContainer = credentialsBinding.passwordContainer;
+                                TextInputEditText password = credentialsBinding.password;
                                 if(!verifyEnteredEmail(emailContainer, email) || !verifyEnteredPass(passwordContainer, password)) return;
 
                                 loadingDialog = new MaterialAlertDialogBuilder(SettingsActivity.this)
