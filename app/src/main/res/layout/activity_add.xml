@@ -36,7 +36,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="10dp"
-                android:hint="Enter title here"
+                android:hint="Title"
                 android:textSize="30sp"
                 android:inputType="textCapWords"
                 android:background="@color/material_on_primary_disabled"
@@ -49,7 +49,7 @@
                 android:layout_marginTop="10dp"
                 android:gravity="top"
                 android:background="@color/material_on_primary_disabled"
-                android:hint="Enter description here"
+                android:hint="Description"
                 android:cursorVisible="true">
             </com.google.android.material.textfield.TextInputEditText>
         </LinearLayout>
