@@ -133,7 +133,7 @@ public class NotesActivity extends AppCompatActivity {
             public void onClick(View v) {
                 ImageButton fav = (ImageButton) v;
                 LinearLayout l= (LinearLayout) v.getParent();
-                GridItemBinding gridItemBinding = GridItemBinding.inflate(LayoutInflater.from(((LinearLayout) v.getParent()).getContext()));
+                GridItemBinding gridItemBinding = GridItemBinding.bind((View)v.getParent().getParent().getParent());
                 MaterialTextView docidView = gridItemBinding.itemDocid;
                 String docid = docidView.getText().toString();
 
@@ -225,11 +225,12 @@ public class NotesActivity extends AppCompatActivity {
             boolean hasUnpinnedNote = false;
             int count = 0;
             for(MaterialCardView cv : cardArr) {
+                GridItemBinding gridItemBinding = GridItemBinding.bind(cv);
                 if(cv.isChecked()) count++;
-                ImageButton fav = cv.findViewById(R.id.item_favorite);
+                ImageButton fav = gridItemBinding.itemFavorite;
                 fav.setClickable(false);
                 cv.setLongClickable(false);
-                AppCompatImageView pin = cv.findViewById(R.id.item_pin);
+                AppCompatImageView pin = gridItemBinding.itemPin;
                 if(cv.isChecked() && !(boolean) pin.getTag()) hasUnpinnedNote = true;
             }
             Log.i("NotesActivity", "Unpinned note is checked");
@@ -285,7 +286,8 @@ public class NotesActivity extends AppCompatActivity {
             mActionMode = null;
             currMode = null;
             for(MaterialCardView cv : cardArr) {
-                ImageButton fav = cv.findViewById(R.id.item_favorite);
+                GridItemBinding gridItemBinding = GridItemBinding.bind(cv);
+                ImageButton fav = gridItemBinding.itemFavorite;
                 fav.setClickable(true);
                 if(cv.isChecked()) {
                     cv.setChecked(false);
@@ -320,7 +322,8 @@ public class NotesActivity extends AppCompatActivity {
                             Log.i("NotesActivity", cv.isChecked() + "");
                             if(!cv.isChecked()) continue;
                             count++;
-                            MaterialTextView docidView = cv.findViewById(R.id.item_docid);
+                            GridItemBinding gridItemBinding = GridItemBinding.bind(cv);
+                            MaterialTextView docidView = gridItemBinding.itemDocid;
                             String docid = docidView.getText().toString();
                             db.collection(FirebaseAuth.getInstance().getUid()).document(docid).delete();
                         }
@@ -344,7 +347,7 @@ public class NotesActivity extends AppCompatActivity {
             Log.i("NotesActivity", "pin");
             for(MaterialCardView cv : cardArr) {
                 if(!cv.isChecked()) continue;
-                MaterialTextView docidView = cv.findViewById(R.id.item_docid);
+                MaterialTextView docidView = GridItemBinding.bind(cv).itemDocid;
                 String docid = docidView.getText().toString();
                 Map<String, Object> data  = new HashMap<String, Object>();
                 data.put("isPinned", true);
@@ -356,7 +359,7 @@ public class NotesActivity extends AppCompatActivity {
             Log.i("NotesActivity", "unpin");
             for(MaterialCardView cv : cardArr) {
                 if(!cv.isChecked()) continue;
-                MaterialTextView docidView = cv.findViewById(R.id.item_docid);
+                MaterialTextView docidView = GridItemBinding.bind(cv).itemDocid;
                 String docid = docidView.getText().toString();
                 Map<String, Object> data = new HashMap<String, Object>();
                 data.put("isPinned", false);
