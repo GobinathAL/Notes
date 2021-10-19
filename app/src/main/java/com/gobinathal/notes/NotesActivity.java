@@ -8,10 +8,10 @@ import android.os.Bundle;
 import android.util.Log;
 import android.util.Pair;
 import android.view.ActionMode;
+import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.ViewStub;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.TextView;
@@ -20,15 +20,16 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.AppCompatImageButton;
 import androidx.appcompat.widget.AppCompatImageView;
 import androidx.appcompat.widget.SearchView;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.google.android.material.appbar.MaterialToolbar;
+import com.gobinathal.notes.databinding.ActivityNotesBinding;
+import com.gobinathal.notes.databinding.GridItemBinding;
 import com.google.android.material.card.MaterialCardView;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
-import com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton;
 import com.google.android.material.textview.MaterialTextView;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.CollectionReference;
@@ -47,15 +48,13 @@ import static com.gobinathal.notes.Theme.Preferences.setPreferredTheme;
 
 public class NotesActivity extends AppCompatActivity {
 
-    private ViewStub stubGrid;
+    private ActivityNotesBinding binding;
     private RecyclerView gvItems;
-    private MaterialToolbar toolbar;
     private ArrayList<TodoItem> tasksArr = new ArrayList<TodoItem>(), currentNotes = new ArrayList<TodoItem>();
     public static ArrayList<MaterialCardView> cardArr = new ArrayList<MaterialCardView>();
     private FirebaseFirestore db;
     private CollectionReference cRef;
     private CustomGridAdapter gridAdapter;
-    private ExtendedFloatingActionButton fab;
     private ListenerRegistration listener;
     private final int ADD_OR_DISCARD = 1;
     private final int EDIT_OR_DISCARD = 2;
@@ -69,38 +68,44 @@ public class NotesActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_notes);
+        binding = ActivityNotesBinding.inflate(getLayoutInflater());
+        setContentView(binding.getRoot());
 
         setPreferredTheme(this);
         sharedPreferences = getSharedPreferences("ThemePref", MODE_PRIVATE);
         NO_OF_COLUMNS = sharedPreferences.getInt("ColumnCount", 0);
         NO_OF_COLUMNS = (NO_OF_COLUMNS == 0) ? 2 : NO_OF_COLUMNS;
 
-        stubGrid = findViewById(R.id.stub_grid);
-        stubGrid.inflate();
+        binding.stubGrid.inflate();
+
+        Log.i("NotesActivity", "inflated stub");
+        gvItems = findViewById(R.id.items_gridview);
+        db = FirebaseFirestore.getInstance();
+        cRef = db.collection(FirebaseAuth.getInstance().getUid());
+        gvItems.setLayoutManager(new GridLayoutManager(NotesActivity.this, NO_OF_COLUMNS));
+        gvItems.addItemDecoration(new SpaceItemDecoration(48, 24));
+        gridAdapter = new CustomGridAdapter(NotesActivity.this, tasksArr);
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
         noteOnClickListener = new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 if(mActionMode == null) {
                     Intent intent = new Intent(NotesActivity.this, AddActivity.class);
-                    MaterialCardView cv = (MaterialCardView) v;
-                    String title = ((TextView) v.findViewById(R.id.item_title)).getText().toString();
-                    String description = ((TextView) v.findViewById(R.id.item_description)).getText().toString();
-                    String docid = ((TextView) v.findViewById(R.id.item_docid)).getText().toString();
-                    ImageButton b = (ImageButton) v.findViewById(R.id.item_favorite);
-                    AppCompatImageView pin = (AppCompatImageView) v.findViewById(R.id.item_pin);
-                    Log.i("NotesActivity", b.toString() + " " + b.getDrawable().toString());
+                    GridItemBinding gridItemBinding = GridItemBinding.bind(v);
+                    String title = gridItemBinding.itemTitle.getText().toString();
+                    String description = gridItemBinding.itemDescription.getText().toString();
+                    String docid = gridItemBinding.itemDocid.getText().toString();
                     intent.putExtra("title", title);
                     intent.putExtra("description", description);
                     intent.putExtra("docid", docid);
-                    intent.putExtra("isFavorite", (boolean) b.getTag());
-                    intent.putExtra("isPinned", (boolean) pin.getTag());
+                    intent.putExtra("isFavorite", (boolean) gridItemBinding.itemFavorite.getTag());
+                    intent.putExtra("isPinned", (boolean) gridItemBinding.itemPin.getTag());
                     Log.i("NotesActivity", title + " " + description + " " + docid);
-                    Pair<View, String>[] pairs = new Pair[2];
-                    Pair<View, String> p1 = Pair.create(cv, "note_grow_transition");
-                    Pair<View, String> p2 = Pair.create(fab, "fab_transition");
-                    ActivityOptions options = ActivityOptions.makeSceneTransitionAnimation(NotesActivity.this, p1, p2);
-                    startActivityForResult(intent, EDIT_OR_DISCARD, options.toBundle());
+                    startActivityForResult(intent, EDIT_OR_DISCARD);
                 }
                 else {
                     MaterialCardView cv = (MaterialCardView) v;
@@ -117,7 +122,7 @@ public class NotesActivity extends AppCompatActivity {
                 MaterialCardView cv = (MaterialCardView) v;
                 cv.setChecked(!cv.isChecked());
                 if(mActionMode == null) {
-                    mActionMode = toolbar.startActionMode(mActionModeCallback);
+                    mActionMode = binding.topToolbar.startActionMode(mActionModeCallback);
                 }
                 return true;
             }
@@ -128,7 +133,8 @@ public class NotesActivity extends AppCompatActivity {
             public void onClick(View v) {
                 ImageButton fav = (ImageButton) v;
                 LinearLayout l= (LinearLayout) v.getParent();
-                MaterialTextView docidView = l.findViewById(R.id.item_docid);
+                GridItemBinding gridItemBinding = GridItemBinding.inflate(LayoutInflater.from(((LinearLayout) v.getParent()).getContext()));
+                MaterialTextView docidView = gridItemBinding.itemDocid;
                 String docid = docidView.getText().toString();
 
                 Map<String, Object> data = new HashMap<String, Object>();
@@ -138,13 +144,6 @@ public class NotesActivity extends AppCompatActivity {
                 Log.i("NotesActivity", ((boolean) fav.getTag()) + " ");
             }
         };
-        Log.i("NotesActivity", "inflated stub");
-        gvItems = findViewById(R.id.items_gridview);
-        db = FirebaseFirestore.getInstance();
-        cRef = db.collection(FirebaseAuth.getInstance().getUid());
-        gvItems.setLayoutManager(new GridLayoutManager(NotesActivity.this, NO_OF_COLUMNS));
-        gvItems.addItemDecoration(new SpaceItemDecoration(48, 24));
-        gridAdapter = new CustomGridAdapter(NotesActivity.this, tasksArr);
 
         // Firestore database realtime listener
         listener = cRef.addSnapshotListener(new EventListener<QuerySnapshot>() {
@@ -174,7 +173,7 @@ public class NotesActivity extends AppCompatActivity {
                     if(tasksArr != null && tasksArr.size() > 0) {
                         currentNotes.clear();
                         currentNotes.addAll(tasksArr);
-                        if(toolbar == null || !toolbar.hasExpandedActionView()) {
+                        if(binding.topToolbar == null || !binding.topToolbar.hasExpandedActionView()) {
                             gvItems.setAdapter(gridAdapter);
                             return;
                         }
@@ -182,7 +181,7 @@ public class NotesActivity extends AppCompatActivity {
                         for(TodoItem t : currentNotes) {
                             String searchTerm = searchView.getQuery().toString().toLowerCase().trim();
                             if(t.getTitle().toLowerCase().contains(searchTerm)
-                            || t.getDescription().toLowerCase().contains(searchTerm)) {
+                                    || t.getDescription().toLowerCase().contains(searchTerm)) {
                                 tasksArr.add(t);
                             }
                         }
@@ -192,18 +191,15 @@ public class NotesActivity extends AppCompatActivity {
             }
         });
 
-        toolbar = findViewById(R.id.top_toolbar);
-        setSupportActionBar(toolbar);
+        setSupportActionBar(binding.topToolbar);
 
         // Go to AddActivity when fab is clicked
-        fab = findViewById(R.id.fab);
-        fab.setOnClickListener(new View.OnClickListener() {
+        binding.fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 startActivityForResult(new Intent(NotesActivity.this, AddActivity.class), ADD_OR_DISCARD);
             }
         });
-
     }
 
     @Override
