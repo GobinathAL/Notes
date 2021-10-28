@@ -26,6 +26,7 @@ public class AddActivity extends AppCompatActivity {
     private ActivityAddBinding binding;
     private Bundle bundle;
     private FirebaseFirestore db;
+    private TodoItem todoItem;
     private String docid;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -39,9 +40,10 @@ public class AddActivity extends AppCompatActivity {
         bundle = getIntent().getExtras();
         db = FirebaseFirestore.getInstance();
         if(bundle != null) {
+            todoItem = (TodoItem) bundle.getParcelable("todoitem");
             docid = bundle.getString("docid");
-            binding.inputTitle.setText(bundle.getString("title"));
-            binding.inputDescription.setText(bundle.getString("description"));
+            binding.inputTitle.setText(todoItem.getTitle());
+            binding.inputDescription.setText(todoItem.getDescription());
             binding.deleteFab.setVisibility(View.VISIBLE);
         }
         binding.inputTitle.addTextChangedListener(new TextWatcher() {
@@ -120,7 +122,7 @@ public class AddActivity extends AppCompatActivity {
         MenuItem pin = menu.findItem(R.id.add_menu_pin);
         if(bundle != null) {
             Log.i("AddActivity", "edit mode");
-            if(bundle.getBoolean("isFavorite")) {
+            if(todoItem.isFavorite) {
                 fav.setIcon(R.drawable.ic_baseline_favorite_24);
                 fav.setContentDescription("true");
             }
@@ -128,8 +130,8 @@ public class AddActivity extends AppCompatActivity {
                 fav.setIcon(R.drawable.ic_baseline_favorite_border_24);
                 fav.setContentDescription("false");
             }
-            Log.i("AddActivity", "Pinned status " + bundle.getBoolean("isPinned"));
-            if(bundle.getBoolean("isPinned")) {
+            Log.i("AddActivity", "Pinned status " + todoItem.isPinned);
+            if(todoItem.isPinned) {
                 pin.setIcon(R.drawable.ic_unpin);
                 pin.setTitle("Unpin");
                 pin.setContentDescription("true");
@@ -182,13 +184,9 @@ public class AddActivity extends AppCompatActivity {
                 String description = binding.inputDescription.getText().toString();
                 boolean isFavorite = binding.addTopToolbar.getMenu().findItem(R.id.add_menu_favorite).getContentDescription().toString().equals("true");
                 boolean isPinned = binding.addTopToolbar.getMenu().findItem(R.id.add_menu_pin).getContentDescription().toString().equals("true");
-                Map<String, Object> data = new HashMap<String, Object>();
-                data.put("title", title);
-                data.put("description", description);
-                data.put("isFavorite", isFavorite);
-                data.put("isPinned", isPinned);
+                TodoItem data = new TodoItem(title, description, isFavorite, isPinned);
                 if(bundle != null) {
-                    db.collection(FirebaseAuth.getInstance().getUid()).document(docid).update(data);
+                    db.collection(FirebaseAuth.getInstance().getUid()).document(docid).set(data);
                 }
                 else {
                     db.collection(FirebaseAuth.getInstance().getUid()).add(data);

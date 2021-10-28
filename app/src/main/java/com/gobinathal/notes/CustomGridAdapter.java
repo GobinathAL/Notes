@@ -16,10 +16,10 @@ import com.google.android.material.textview.MaterialTextView;
 import java.util.List;
 
 public class CustomGridAdapter extends RecyclerView.Adapter<CustomGridAdapter.ViewHolder> {
-    private List<TodoItem> itemList;
+    private List<Note> itemList;
     private Context mContext;
 
-    public CustomGridAdapter(Context mContext, List<TodoItem> itemList) {
+    public CustomGridAdapter(Context mContext, List<Note> itemList) {
         this.mContext = mContext;
         this.itemList = itemList;
     }
@@ -32,21 +32,21 @@ public class CustomGridAdapter extends RecyclerView.Adapter<CustomGridAdapter.Vi
 
     @Override
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
-        TodoItem todoItem = itemList.get(position);
+        Note note = itemList.get(position);
 
-        holder.title.setText(todoItem.getTitle());
-        holder.description.setText(todoItem.getDescription());
-        holder.docid.setText(todoItem.getDocid());
-        if(todoItem.isFavorite())
+        holder.title.setText(note.getTitle());
+        holder.description.setText(note.getDescription());
+        holder.docid.setText(note.getDocid());
+        if(note.isFavorite())
             holder.favorite.setImageResource(R.drawable.ic_baseline_favorite_24);
         else
             holder.favorite.setImageResource(R.drawable.ic_baseline_favorite_border_24);
-        holder.favorite.setTag(new Boolean(todoItem.isFavorite()));
-        if(todoItem.isPinned())
+        holder.favorite.setTag(new Boolean(note.isFavorite()));
+        if(note.isPinned())
             holder.pinned.setImageResource(R.drawable.ic_baseline_push_pin_24);
         else
             holder.pinned.setImageDrawable(null);
-        holder.pinned.setTag(new Boolean(todoItem.isPinned()));
+        holder.pinned.setTag(new Boolean(note.isPinned()));
     }
 
     @Override

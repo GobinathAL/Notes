@@ -5,6 +5,7 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.os.Parcelable;
 import android.util.Log;
 import android.util.Pair;
 import android.view.ActionMode;
@@ -50,7 +51,7 @@ public class NotesActivity extends AppCompatActivity {
 
     private ActivityNotesBinding binding;
     private RecyclerView gvItems;
-    private ArrayList<TodoItem> tasksArr = new ArrayList<TodoItem>(), currentNotes = new ArrayList<TodoItem>();
+    private ArrayList<Note> tasksArr = new ArrayList<Note>(), currentNotes = new ArrayList<Note>();
     public static ArrayList<MaterialCardView> cardArr = new ArrayList<MaterialCardView>();
     private FirebaseFirestore db;
     private CollectionReference cRef;
@@ -99,12 +100,10 @@ public class NotesActivity extends AppCompatActivity {
                     String title = gridItemBinding.itemTitle.getText().toString();
                     String description = gridItemBinding.itemDescription.getText().toString();
                     String docid = gridItemBinding.itemDocid.getText().toString();
-                    intent.putExtra("title", title);
-                    intent.putExtra("description", description);
+                    boolean isFavorite = (boolean) gridItemBinding.itemFavorite.getTag();
+                    boolean isPinned = (boolean) gridItemBinding.itemPin.getTag();
+                    intent.putExtra("todoitem", (Parcelable) new TodoItem(title, description, isFavorite, isPinned));
                     intent.putExtra("docid", docid);
-                    intent.putExtra("isFavorite", (boolean) gridItemBinding.itemFavorite.getTag());
-                    intent.putExtra("isPinned", (boolean) gridItemBinding.itemPin.getTag());
-                    Log.i("NotesActivity", title + " " + description + " " + docid);
                     startActivityForResult(intent, EDIT_OR_DISCARD);
                 }
                 else {
@@ -137,10 +136,8 @@ public class NotesActivity extends AppCompatActivity {
                 MaterialTextView docidView = gridItemBinding.itemDocid;
                 String docid = docidView.getText().toString();
 
-                Map<String, Object> data = new HashMap<String, Object>();
-                data.put("isFavorite", !(boolean) fav.getTag());
                 FirebaseFirestore db = FirebaseFirestore.getInstance();
-                db.collection(FirebaseAuth.getInstance().getUid()).document(docid).update(data);
+                db.collection(FirebaseAuth.getInstance().getUid()).document(docid).update("favorite", !(boolean) fav.getTag());
                 Log.i("NotesActivity", ((boolean) fav.getTag()) + " ");
             }
         };
@@ -159,13 +156,13 @@ public class NotesActivity extends AppCompatActivity {
                     cardArr.clear();
                     tasksArr.clear();
                     for(DocumentSnapshot d : todoList) {
-                        TodoItem todoItem = new TodoItem(d.getString("title"), d.getString("description"), d.getId(), d.getBoolean("isFavorite"), d.getBoolean("isPinned"));
-                        tasksArr.add(todoItem);
-                        Log.i("NotesActivity", todoItem.toString());
+                        Note note = new Note(d.getString("title"), d.getString("description"), d.getId(), d.getBoolean("favorite"), d.getBoolean("pinned"));
+                        tasksArr.add(note);
+                        Log.i("NotesActivity", note.toString());
                     }
                     int index = 0;
                     for(int i = 0; i < tasksArr.size(); i++) {
-                        TodoItem t = tasksArr.get(i);
+                        Note t = tasksArr.get(i);
                         if(!t.isPinned()) continue;
                         tasksArr.remove(t);
                         tasksArr.add(index, t);
@@ -178,7 +175,7 @@ public class NotesActivity extends AppCompatActivity {
                             return;
                         }
                         tasksArr.clear();
-                        for(TodoItem t : currentNotes) {
+                        for(Note t : currentNotes) {
                             String searchTerm = searchView.getQuery().toString().toLowerCase().trim();
                             if(t.getTitle().toLowerCase().contains(searchTerm)
                                     || t.getDescription().toLowerCase().contains(searchTerm)) {
@@ -349,9 +346,7 @@ public class NotesActivity extends AppCompatActivity {
                 if(!cv.isChecked()) continue;
                 MaterialTextView docidView = GridItemBinding.bind(cv).itemDocid;
                 String docid = docidView.getText().toString();
-                Map<String, Object> data  = new HashMap<String, Object>();
-                data.put("isPinned", true);
-                db.collection(FirebaseAuth.getInstance().getUid()).document(docid).update(data);
+                db.collection(FirebaseAuth.getInstance().getUid()).document(docid).update("pinned", true);
             }
             Toast.makeText(getApplicationContext(), "Pinned", Toast.LENGTH_SHORT).show();
         }
@@ -361,9 +356,7 @@ public class NotesActivity extends AppCompatActivity {
                 if(!cv.isChecked()) continue;
                 MaterialTextView docidView = GridItemBinding.bind(cv).itemDocid;
                 String docid = docidView.getText().toString();
-                Map<String, Object> data = new HashMap<String, Object>();
-                data.put("isPinned", false);
-                db.collection(FirebaseAuth.getInstance().getUid()).document(docid).update(data);
+                db.collection(FirebaseAuth.getInstance().getUid()).document(docid).update("pinned", false);
             }
             Toast.makeText(getApplicationContext(), "Unpinned", Toast.LENGTH_SHORT).show();
         }
@@ -409,7 +402,7 @@ public class NotesActivity extends AppCompatActivity {
             public boolean onQueryTextChange(String newText) {
                 String searchPattern = newText.toLowerCase().trim();
                 tasksArr.clear();
-                for(TodoItem t : currentNotes) {
+                for(Note t : currentNotes) {
                     if(t.getTitle().toLowerCase().contains(searchPattern) || t.getDescription().toLowerCase().contains(searchPattern)) {
                         tasksArr.add(t);
                     }

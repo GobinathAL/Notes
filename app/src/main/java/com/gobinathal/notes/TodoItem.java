@@ -1,30 +1,34 @@
 package com.gobinathal.notes;
 
-public class TodoItem {
-    private String title, description, docid;
-    private boolean isFavorite, isPinned;
+import android.os.Parcel;
+import android.os.Parcelable;
+
+public class TodoItem implements Parcelable {
+    protected String title, description;
+    protected boolean isFavorite, isPinned;
 
     public TodoItem() {
         this.title = "";
         this.description = "";
-        this.docid = "";
         this.isFavorite = false;
         this.isPinned = false;
     }
-    public TodoItem(String title, String description, String docid, boolean isFavorite, boolean isPinned) {
+    public TodoItem(String title, String description, boolean isFavorite, boolean isPinned) {
         this.title = title;
         this.description = description;
-        this.docid = docid;
         this.isFavorite = isFavorite;
         this.isPinned = isPinned;
     }
 
-    public String getTitle() {
-        return title;
+    public TodoItem(Parcel parcel) {
+        this.title = parcel.readString();
+        this.description = parcel.readString();
+        this.isFavorite = (boolean) parcel.readValue(null);
+        this.isPinned = (boolean) parcel.readValue(null);
     }
 
-    public String getDocid() {
-        return docid;
+    public String getTitle() {
+        return title;
     }
 
     public String getDescription() {
@@ -41,10 +45,6 @@ public class TodoItem {
 
     public void setTitle(String title) {
         this.title = title;
-    }
-
-    public void setDocid(String docid) {
-        this.docid = docid;
     }
 
     public void setDescription(String description) {
@@ -68,4 +68,29 @@ public class TodoItem {
                 ", isPinned=" + isPinned +
                 '}';
     }
+
+    @Override
+    public int describeContents() {
+        return 0;
+    }
+
+    @Override
+    public void writeToParcel(Parcel parcel, int i) {
+        parcel.writeString(title);
+        parcel.writeString(description);
+        parcel.writeValue(isFavorite);
+        parcel.writeValue(isPinned);
+    }
+
+    public static final Creator CREATOR = new Creator() {
+        @Override
+        public Object createFromParcel(Parcel parcel) {
+            return new TodoItem(parcel);
+        }
+
+        @Override
+        public Object[] newArray(int i) {
+            return new TodoItem[i];
+        }
+    };
 }
