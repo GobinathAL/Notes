@@ -1,5 +1,7 @@
 package com.gobinathal.notes;
-
+/*
+* This should not be used to pass notes in intent
+* */
 public class Note extends TodoItem{
     private String docid;
 
